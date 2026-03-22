@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/* scroll‑reveal helper */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
