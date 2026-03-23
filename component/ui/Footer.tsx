@@ -11,12 +11,10 @@ const Footer = () => {
 
         {/* Logo + Tagline */}
         <div className='flex flex-col gap-3'>
-          <Image
-            src="/logo/smart.png"
-            alt="InvoiceLux Logo"
-            width={120}
-            height={50}
-            className='object-contain'
+          <img
+            src="/logo/smart.svg"
+            alt="BillingKitaab Logo"
+            className="h-10 w-auto object-contain mb-2"
           />
           <p className='text-xs text-[#f5f6f7]/40'>Premium billing for modern India.</p>
           <p className='text-xs text-[#f5f6f7]/40'>Built to last.</p>
@@ -28,22 +26,21 @@ const Footer = () => {
           {/* Product */}
           <div className='flex flex-col gap-3'>
             <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>Product</p>
-            <Link href='#' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Services</Link>
-            <Link href='#' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Pricing</Link>
+            <Link href='/landing#services' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Services</Link>
+            <Link href='/landing#pricing' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Pricing</Link>
           </div>
 
           {/* Company */}
           <div className='flex flex-col gap-3'>
             <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>Company</p>
-            <Link href='#' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>About Us</Link>
-            <Link href='#' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Contact</Link>
+            <Link href='/landing#about' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>About Us</Link>
+            <Link href='/contact' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Contact</Link>
           </div>
 
           {/* Support */}
           <div className='flex flex-col gap-3'>
             <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>Support</p>
-            <Link href='#' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Help Centre</Link>
-            <Link href='#' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>WhatsApp Us</Link>
+            <Link href='/help' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Help Centre</Link>
           </div>
 
         </div>
@@ -54,14 +51,14 @@ const Footer = () => {
 
         {/* Copyright */}
         <p className='text-xs text-[#f5f6f7]/30 text-center sm:text-left'>
-          © 2026 <span className='text-[#f5f6f7]/60'>Smartbill.</span> All rights reserved.
+          © 2026 <span className='text-[#f5f6f7]/60'>BillingKitaab.</span> All rights reserved.
         </p>
 
         {/* Bottom Links */}
         <div className='flex flex-wrap justify-center gap-6'>
-          <Link href='#' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>Privacy Policy</Link>
-          <Link href='#' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>Terms of Use</Link>
-          <Link href='#' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>GST Policy</Link>
+          <Link href='/privacy' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>Privacy Policy</Link>
+          <Link href='/terms' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>Terms of Use</Link>
+          <Link href='/gst' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>GST Policy</Link>
         </div>
 
       </div>

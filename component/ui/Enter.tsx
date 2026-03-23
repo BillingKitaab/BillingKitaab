@@ -105,7 +105,7 @@ const Enter = () => {
       <ScrollReveal>
         <div className="w-full max-w-md lg:max-w-[77vh] bg-[#F5F6F7] rounded-xl shadow-lg flex flex-col items-center justify-start py-6">
           {/* Logo */}
-          <div className="h-24 w-24 lg:h-[10vh] lg:w-[20vh] rounded-full bg-[url('/logo/smart.png')] bg-cover bg-center mb-6 mt-6"></div>
+          <img src="/logo/smart.svg" alt="BillingKitaab Logo" className="h-20 lg:h-[10vh] w-auto object-contain mb-6 mt-6" />
 
           {/* Form */}
           <form

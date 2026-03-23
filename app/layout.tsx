@@ -19,8 +19,11 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Smart Bill",
-  description: "Smart Billing Application",
+  title: "BillingKitaab",
+  description: "BillingKitaab Application",
+  icons: {
+    icon: "/logo/smart.svg",
+  },
 };
 
 export default function RootLayout({

@@ -63,7 +63,6 @@ const HomeIcon = () => (
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [homePopup, setHomePopup] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [user, setUser] = useState<{ email: string; business_name: string } | null>(null);
   const router   = useRouter();
@@ -90,10 +89,6 @@ export default function Sidebar() {
     setIsOpen(false);
   };
 
-  const handleHome = () => {
-    setHomePopup(true);
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/signup");
@@ -102,7 +97,7 @@ export default function Sidebar() {
   const SidebarContent = () => (
     <div className="flex flex-col h-screen w-60 px-3 py-5 bg-[#2f2f33]">
       <div className="flex items-center justify-between px-2 mb-2">
-        <img src="logo/smart.png" alt="Logo" className="h-12 object-contain" />
+        <img src="logo/smart.svg" alt="Logo" className="h-12 object-contain" />
         <button
           className="md:hidden text-[rgba(245,246,247,0.45)]"
           onClick={() => setIsOpen(false)}
@@ -111,17 +106,18 @@ export default function Sidebar() {
         </button>
       </div>
 
-      <button
-        onClick={handleHome}
-        className={`flex items-center gap-2 px-3 py-1.5 mb-6 rounded-lg text-xs transition-all duration-150 ${
+      <Link
+        href="/"
+        onClick={() => setIsOpen(false)}
+        className={`flex items-center gap-2 pl-6 pr-3 py-2 mb-4 rounded-lg text-sm transition-all duration-150 ${
           pathname === "/"
-            ? "bg-[rgba(212,180,131,0.15)] text-[#D4B483]"
-            : "bg-transparent text-[rgba(245,246,247,0.45)]"
+            ? "bg-[rgba(212,180,131,0.25)] text-[#D4B483] font-semibold"
+            : "bg-transparent text-[#f5f6f7] font-normal"
         }`}
       >
         <HomeIcon />
         Home
-      </button>
+      </Link>
 
       <nav className="flex-1 flex flex-col gap-5">
         {menu.map(({ group, items }) => (
@@ -178,51 +174,7 @@ export default function Sidebar() {
     </div>
   );
 
-  const HomePopupPortal = () => {
-    if (typeof window === "undefined") return null;
-    return createPortal(
-      <>
-        <div
-          className="fixed inset-0 z-[9998] bg-black/20"
-          onClick={() => setHomePopup(false)}
-        />
-        <div className="fixed z-[9999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#2f2f33] border border-[rgba(212,180,131,0.25)] rounded-xl shadow-2xl p-5 w-[260px]">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-[#D4B483]">
-              Go to Home?
-            </span>
-            <button
-              onClick={() => setHomePopup(false)}
-              className="text-[rgba(245,246,247,0.45)] bg-transparent border-none cursor-pointer flex"
-            >
-              <CloseIcon />
-            </button>
-          </div>
 
-          <p className="text-xs text-[rgba(245,246,247,0.45)] mb-4">
-            You are about to navigate to the Home page.
-          </p>
-
-          <div className="flex gap-2">
-            <Link
-              href="/"
-              onClick={() => { handleNav("home"); setHomePopup(false); }}
-              className="flex-1 py-1.5 rounded-lg text-xs font-semibold bg-[#3a6f77] text-[#f5f6f7] text-center"
-            >
-              Yes, go Home
-            </Link>
-            <button
-              onClick={() => setHomePopup(false)}
-              className="flex-1 py-1.5 rounded-lg text-xs font-semibold bg-[rgba(245,246,247,0.08)] text-[rgba(245,246,247,0.45)] border-none cursor-pointer"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </>,
-      document.body
-    );
-  };
 
   return (
     <>
@@ -254,7 +206,6 @@ export default function Sidebar() {
         </>
       )}
 
-      {homePopup && <HomePopupPortal />}
     </>
   );
 }
