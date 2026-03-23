@@ -104,7 +104,7 @@ const Signin = () => {
         <div className="w-full max-w-[280px] sm:max-w-[400px] md:max-w-[450px] lg:max-w-[420px] bg-[#F5F6F7] rounded-xl shadow-lg flex flex-col items-center justify-start px-3 sm:px-5 lg:px-5 py-6">
 
           {/* Logo */}
-          <div className="h-16 w-16 sm:h-20 sm:w-20 lg:h-22 lg:w-22 rounded-full bg-[url('/logo/smart.png')] bg-cover bg-center mb-6 mt-6"></div>
+          <img src="/logo/smart.svg" alt="BillingKitaab Logo" className="h-16 sm:h-20 w-auto object-contain mb-6 mt-6" />
 
           <form onSubmit={onSubmit} className="w-full flex flex-col">
 

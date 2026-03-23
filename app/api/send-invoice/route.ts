@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: "Smart Bill <onboarding@resend.dev>", // Safe default testing email for Resend
+      from: "BillingKitaab <onboarding@resend.dev>", // Safe default testing email for Resend
       to: [clientEmail],
       subject: `New Invoice from ${businessName || "us"}`,
       html: `
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
             <a href="${publicUrl}">${publicUrl}</a>
           </p>
           <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
-          <p style="color: #888; font-size: 12px;">Powered by Smart Bill</p>
+          <p style="color: #888; font-size: 12px;">Powered by BillingKitaab</p>
         </div>
       `,
     });

@@ -37,9 +37,9 @@ const Navbar = () => {
     <div className="fixed top-0 left-0 right-0 h-17 w-full bg-gradient-to-b from-[#f5f6f7] via-[#f5f6f7] to-[#2f2f33]/5 flex items-center justify-between px-4 sm:px-8 z-50">
       {/* Left side logo */}
       <img
-        src="/logo/smart.png"
+        src="/logo/smart.svg"
         alt="Logo"
-        className="h-14 sm:h-full w-auto animate-[slideInLeft_0.6s_ease-out_both]"
+        className="h-10 sm:h-12 w-auto object-contain animate-[slideInLeft_0.6s_ease-out_both]"
       />
 
       {/* Center nav links */}

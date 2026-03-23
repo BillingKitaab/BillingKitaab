@@ -109,7 +109,7 @@ export default function SmartBillingHero() {
         <div className="fade-0 inline-flex items-center gap-2 bg-white border rounded-full px-3 py-1.5 mb-5 md:mb-7 text-xs font-medium"
           style={{ borderColor: "rgba(201,169,110,0.3)", color: TEAL, letterSpacing: "0.5px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
           <span className="rounded-full inline-block" style={{ width: 6, height: 6, background: GOLD }} />
-          <span className="whitespace-nowrap">Smart Billing · Built for Modern India</span>
+          <span className="whitespace-nowrap">BillingKitaab · Built for Modern India</span>
         </div>
 
         <p className="fade-1 dm-sans text-base md:text-lg font-medium mb-3" style={{ color: TEAL, letterSpacing: "1px" }}>
