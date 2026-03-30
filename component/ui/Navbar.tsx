@@ -82,6 +82,19 @@ const Navbar = () => {
         >
           About us
         </p>
+
+        <p
+          onClick={(e) => {
+            e.preventDefault();
+            navigateWithFade("/contact");
+          }}
+          className="relative text-sm text-[#2f2f33] font-medium cursor-pointer 
+          after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5 
+          after:bg-[#D4B483] after:scale-x-0 after:origin-left after:transition-transform after:duration-300 
+          hover:after:scale-x-100"
+        >
+          Contact Us
+        </p>
       </div>
 
       {/* Right side buttons */}
@@ -227,6 +240,16 @@ const Navbar = () => {
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >
               About us
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileOpen(false);
+                navigateWithFade("/contact");
+              }}
+              className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
+            >
+              Contact Us
             </button>
           </div>
         </div>
