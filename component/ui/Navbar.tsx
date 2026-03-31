@@ -47,7 +47,7 @@ const Navbar = () => {
         <p
           onClick={(e) => {
             e.preventDefault();
-            navigateWithFade("/home");
+            navigateWithFade("/");
           }}
           className="relative text-sm text-[#2f2f33] font-medium cursor-pointer 
           after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5 
@@ -60,14 +60,14 @@ const Navbar = () => {
         <p
           onClick={(e) => {
             e.preventDefault();
-            navigateWithFade("/#services");
+            navigateWithFade("/features");
           }}
           className="relative text-sm text-[#2f2f33] font-medium cursor-pointer 
           after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5 
           after:bg-[#D4B483] after:scale-x-0 after:origin-left after:transition-transform after:duration-300 
           hover:after:scale-x-100"
         >
-          Services
+          Feature
         </p>
 
         <p
@@ -228,7 +228,7 @@ const Navbar = () => {
               onClick={(e) => {
                 e.preventDefault();
                 setMobileOpen(false);
-                navigateWithFade("/home");
+                navigateWithFade("/");
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >
@@ -238,11 +238,11 @@ const Navbar = () => {
               onClick={(e) => {
                 e.preventDefault();
                 setMobileOpen(false);
-                navigateWithFade("/#services");
+                navigateWithFade("/features");
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >
-              Services
+              Feature
             </button>
             <button
               onClick={(e) => {

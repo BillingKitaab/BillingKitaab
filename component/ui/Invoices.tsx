@@ -264,7 +264,9 @@ const dotColor = (status: string) => {
       </div>
 
       {/* Table */}
-      <div className="mx-3 mt-4 mb-3 bg-[#2f2f33] rounded-xl flex flex-col flex-1 min-h-0">
+      <div className="mx-3 mt-4 mb-3 bg-[#2f2f33] rounded-xl flex flex-col flex-1 min-h-0 overflow-x-auto">
+
+        <div className="min-w-[760px] flex flex-col flex-1 min-h-0">
 
         {/* Table Header */}
         <div className="grid grid-cols-[1fr_1.5fr_2fr_1.2fr_1fr_1fr_40px] gap-2 px-4 py-3 flex-shrink-0" style={{ borderBottom: "1px solid #f5f6f722" }}>
@@ -345,6 +347,7 @@ const dotColor = (status: string) => {
               </div>
             ))
           )}
+        </div>
         </div>
       </div>
 

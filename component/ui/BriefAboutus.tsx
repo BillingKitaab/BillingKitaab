@@ -7,7 +7,7 @@ const BriefAboutus = () => {
     <div className='w-full bg-gradient-to-br from-[#f5f6f7] via-[#D4B483]/20 to-[#3a6f77]/30 relative overflow-x-hidden py-8 sm:py-12 md:py-16'>
       {/* Top Heading */}
       <div className='w-full px-4 mb-12 mt-15 sm:mt-9'>
-        <h1 className='text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#2f2f33] text-center leading-tight max-w-4xl mx-auto'>
+        <h1 className='text-2xl sm:text-3xl md:text-4xl lg:text-3xl font-serif font-bold text-[#2f2f33] text-center leading-tight max-w-4xl mx-auto'>
           Billig Kitaab helps make your business easier and builds trust with your customers.
         </h1>
       </div>
@@ -16,7 +16,7 @@ const BriefAboutus = () => {
       <div className='max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start px-4 pb-8'>
         
         {/* Left Side - Content */}
-        <div className='space-y-6'>
+        <div className='space-y-6 lg:order-2'>
           
           {/* About Section */}
           <div className='space-y-2'>
@@ -79,7 +79,7 @@ const BriefAboutus = () => {
         </div>
 
         {/* Right Side - Working/Visual */}
-        <div className='flex flex-col items-center justify-center'>
+        <div className='flex flex-col items-center justify-center lg:order-1'>
           <img src='/logo/contactus.png' alt='Billing Kitaab' className='w-full max-w-xs sm:max-w-sm md:max-w-md h-auto rounded-2xl mb-6' />
           <div className='w-full grid grid-cols-2 gap-2 sm:gap-3 md:gap-4'>
             <div className='bg-gradient-to-br from-[#D4B483] to-[#D4B483]/80 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 text-white flex flex-col items-center'>
