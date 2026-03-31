@@ -47,6 +47,19 @@ const Navbar = () => {
         <p
           onClick={(e) => {
             e.preventDefault();
+            navigateWithFade("/home");
+          }}
+          className="relative text-sm text-[#2f2f33] font-medium cursor-pointer 
+          after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5 
+          after:bg-[#D4B483] after:scale-x-0 after:origin-left after:transition-transform after:duration-300 
+          hover:after:scale-x-100"
+        >
+          Home
+        </p>
+
+        <p
+          onClick={(e) => {
+            e.preventDefault();
             navigateWithFade("/#services");
           }}
           className="relative text-sm text-[#2f2f33] font-medium cursor-pointer 
@@ -73,7 +86,7 @@ const Navbar = () => {
         <p
           onClick={(e) => {
             e.preventDefault();
-            navigateWithFade("/#about");
+            navigateWithFade("/briefaboutus");
           }}
           className="relative text-sm text-[#2f2f33] font-medium cursor-pointer 
           after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5 
@@ -215,6 +228,16 @@ const Navbar = () => {
               onClick={(e) => {
                 e.preventDefault();
                 setMobileOpen(false);
+                navigateWithFade("/home");
+              }}
+              className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
+            >
+              Home
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileOpen(false);
                 navigateWithFade("/#services");
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
@@ -235,7 +258,7 @@ const Navbar = () => {
               onClick={(e) => {
                 e.preventDefault();
                 setMobileOpen(false);
-                navigateWithFade("/#about");
+                navigateWithFade("/briefaboutus");
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >
