@@ -11,4 +11,16 @@
   transform: translateY(0);
 }
 
+/* Global responsive baseline for all pages */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 

@@ -14,6 +14,7 @@ const menu = [
       { id: "invoices",  label: "Invoices",  href: "/invoice",  badge: null },
       { id: "customers", label: "Customers", href: "/customer", badge: null },
       { id: "reminders", label: "Reminders", href: "/reminder", badge: null },
+      { id: "inventory", label: "Inventory", href: "/inventory", badge: null },
     ],
   },
   {
@@ -97,7 +98,7 @@ export default function Sidebar() {
   const SidebarContent = () => (
     <div className="flex flex-col h-screen w-60 px-3 py-5 bg-[#2f2f33]">
       <div className="flex items-center justify-between px-2 mb-2">
-        <img src="logo/smart.svg" alt="Logo" className="h-12 object-contain" />
+        <img src="/logo/smart.svg" alt="Logo" className="h-12 object-contain" />
         <button
           className="md:hidden text-[rgba(245,246,247,0.45)]"
           onClick={() => setIsOpen(false)}
@@ -155,7 +156,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-[rgba(58,111,119,0.2)]">
-        <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 bg-[#3a6f77] text-[#f5f6f7]">
+        <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 bg-[#3a6f77] text-[#f5f6f7]">
           {user?.business_name ? user.business_name.charAt(0).toUpperCase() : "U"}
         </div>
 
@@ -178,7 +179,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden md:block w-60 flex-shrink-0 bg-[#2f2f33]">
+      <aside className="hidden md:block w-60 shrink-0 bg-[#2f2f33]">
         <SidebarContent />
       </aside>
 

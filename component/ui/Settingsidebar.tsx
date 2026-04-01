@@ -5,7 +5,7 @@ import ScrollReveal from "./ScrollReveal";
 import { FaArrowLeft } from "react-icons/fa";
 
 import Link from "next/link";
-import { FaUser, FaCreditCard, FaPaintBrush, FaBell, FaBars, FaTimes, FaHome, FaBoxOpen } from "react-icons/fa";
+import { FaUser, FaCreditCard, FaPaintBrush, FaBell, FaBars, FaTimes, FaHome } from "react-icons/fa";
 
 const Settingsidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -67,21 +67,6 @@ const Settingsidebar = () => {
         </ul>
       </div>
 
-      {/* DANGER */}
-
-      {/* INVENTORY */}
-      <div className="mt-6">
-        <h2 className="text-[#3a6f77] font-semibold mb-2">INVENTORY</h2>
-        <ul className="space-y-2">
-          <Link
-            href='/settings/inventory'
-            className="flex items-center gap-2 text-[#2f2f33] hover:text-[#D4B483] cursor-pointer"
-          >
-            <FaBoxOpen /> Add Product
-          </Link>
-        </ul>
-      </div>
-
       {/* Back to Home */}
       <div className="mt-auto pt-6">
         <Link
@@ -128,7 +113,7 @@ const Settingsidebar = () => {
       </aside>
 
       {/* Desktop sidebar — always visible */}
-      <aside className="hidden md:flex w-64 bg-[#f5f6f7] text-[#2f2f33] h-screen p-4 flex-col flex-shrink-0">
+      <aside className="hidden md:flex w-64 bg-[#f5f6f7] text-[#2f2f33] h-screen p-4 flex-col shrink-0">
         {sidebarContent}
       </aside>
     </>
