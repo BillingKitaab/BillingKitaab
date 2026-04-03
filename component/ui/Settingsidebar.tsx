@@ -82,12 +82,14 @@ const Settingsidebar = () => {
   return (
     <>
       {/* Mobile hamburger button */}
-      <button
-        className="fixed top-[146px] left-4 z-50 md:hidden bg-[#f5f6f7] text-[#2f2f33] p-2 rounded-md shadow-md"
-        onClick={() => setIsOpen(true)}
-      >
-        <FaBars size={18} />
-      </button>
+      {!isOpen && (
+        <button
+          className="fixed top-[146px] left-4 z-30 md:hidden bg-[#f5f6f7] text-[#2f2f33] p-2 rounded-md shadow-md"
+          onClick={() => setIsOpen(true)}
+        >
+          <FaBars size={18} />
+        </button>
+      )}
 
       {/* Mobile overlay */}
       {isOpen && (
