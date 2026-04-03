@@ -55,13 +55,6 @@ const LogoutIcon = () => (
   </svg>
 );
 
-const HomeIcon = () => (
-  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z" />
-    <path d="M9 21V12h6v9" />
-  </svg>
-);
-
 const MenuIcon = () => (
   <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     <line x1="4" y1="7" x2="20" y2="7" />
@@ -123,21 +116,8 @@ export default function Sidebar() {
 
   const SidebarContent = () => (
     <div className="flex flex-col min-h-full w-full md:h-screen md:w-60 px-3 py-5 bg-[#2f2f33]">
-      <div className="flex items-center px-2 mb-2">
+      <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center px-2 mb-2">
         <img src="/logo/smart.svg" alt="Logo" className="h-12 object-contain" />
-      </div>
-
-      <Link
-        href="/"
-        onClick={() => setIsOpen(false)}
-        className={`flex items-center gap-2 pl-6 pr-3 py-2 mb-4 rounded-lg text-sm transition-all duration-150 ${
-          pathname === "/"
-            ? "bg-[rgba(212,180,131,0.25)] text-[#D4B483] font-semibold"
-            : "bg-transparent text-[#f5f6f7] font-normal"
-        }`}
-      >
-        <HomeIcon />
-        Home
       </Link>
 
       <nav className="flex-1 flex flex-col gap-5">
