@@ -27,7 +27,7 @@ const Footer = () => {
           <div className='flex flex-col gap-3'>
             <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>Product</p>
             <Link href='/landing#services' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Services</Link>
-            <Link href='/landing#pricing' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Pricing</Link>
+            <Link href='/pricing' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Pricing</Link>
           </div>
 
           {/* Company */}
@@ -41,6 +41,8 @@ const Footer = () => {
           <div className='flex flex-col gap-3'>
             <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>Support</p>
             <Link href='/help' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Help Centre</Link>
+            <Link href='/terms' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Terms and Conditions</Link>
+            <Link href='/privacy' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Policy</Link>
           </div>
 
         </div>

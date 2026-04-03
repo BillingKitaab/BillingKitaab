@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { FaPhone, FaEnvelope, FaBuilding, FaHome, FaPen, FaUpload } from "react-icons/fa";
+import { FaPhone, FaEnvelope, FaBuilding, FaHome, FaPen, FaUpload, FaUser, FaLink } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import SignatureCanvas from "react-signature-canvas";
@@ -12,6 +12,9 @@ import SignatureCanvas from "react-signature-canvas";
 const Setting = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
+  const [hasProfile, setHasProfile] = useState(false);
+  const [businessLogoPreview, setBusinessLogoPreview] = useState<string>('');
   const [sigMode, setSigMode] = useState<'draw' | 'upload'>('draw');
   const sigCanvasRef = React.useRef<SignatureCanvas>(null);
 
@@ -28,11 +31,24 @@ const Setting = () => {
     signatureUrl: "",
   });
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
+
+  const [profileInitialValues, setProfileInitialValues] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    social: "",
+  });
+  const profileSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadBusiness = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        setProfileLoading(false);
+        return;
+      }
 
       const { data } = await supabase
         .from('businesses')
@@ -55,7 +71,34 @@ const Setting = () => {
           signatureUrl: data.signature_url || "",
         });
       }
+
+      const savedLogo = localStorage.getItem('businessLogo');
+      if (savedLogo) {
+        setBusinessLogoPreview(savedLogo);
+      }
+
       setLoading(false);
+
+      const { data: profileData } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profileData) {
+        setProfileId(profileData.id);
+        setHasProfile(true);
+        setProfileInitialValues({
+          name: profileData.name || "",
+          email: profileData.email || "",
+          phone: profileData.phone || "",
+          social: profileData.social_url || "",
+        });
+      } else {
+        setHasProfile(false);
+      }
+
+      setProfileLoading(false);
     };
     loadBusiness();
   }, []);
@@ -124,7 +167,9 @@ const Setting = () => {
       if (values.businessLogo) {
         const reader = new FileReader();
         reader.onloadend = () => {
-          localStorage.setItem("businessLogo", reader.result as string);
+          const logoData = reader.result as string;
+          localStorage.setItem("businessLogo", logoData);
+          setBusinessLogoPreview(logoData);
         };
         reader.readAsDataURL(values.businessLogo);
       }
@@ -134,8 +179,60 @@ const Setting = () => {
     },
   });
 
+  const profileFormik = useFormik({
+    initialValues: profileInitialValues,
+    enableReinitialize: true,
+    validationSchema: Yup.object({
+      name: Yup.string().required("Name is required"),
+      email: Yup.string().email("Invalid email").required("Email is required"),
+      phone: Yup.string()
+        .matches(/^[0-9]{10}$/, "Phone must be 10 digits")
+        .required("Phone number is required"),
+      social: Yup.string().url("Invalid URL").required("Social media link is required"),
+    }),
+    onSubmit: async (values) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const profileData = {
+        user_id: user.id,
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        social_url: values.social,
+      };
+
+      let result;
+      if (profileId) {
+        result = await supabase
+          .from('user_profiles')
+          .update(profileData)
+          .eq('id', profileId);
+      } else {
+        result = await supabase
+          .from('user_profiles')
+          .insert(profileData)
+          .select()
+          .single();
+
+        if (result.data) {
+          setProfileId(result.data.id);
+        }
+      }
+
+      if (result.error) {
+        alert('Error saving profile: ' + result.error.message);
+        return;
+      }
+
+      setHasProfile(true);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2500);
+    },
+  });
+
   return (
-    <div className="h-[100dvh] w-full flex flex-col overflow-hidden">
+    <div className="h-dvh w-full flex flex-col overflow-hidden">
 
       <AnimatePresence>
         {showSuccess && (
@@ -199,17 +296,17 @@ const Setting = () => {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="w-full flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 flex-shrink-0 bg-gray-50 border-b">
+      <div className="w-full flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 shrink-0 bg-gray-50 border-b">
         <div className="min-w-0">
           <h1 className="text-xl sm:text-2xl lg:text-3xl text-[#2f2f33] font-bold font-serif truncate">
-            Settings
+            {hasProfile ? 'Profile' : 'Settings'}
           </h1>
           <p className="font-medium text-xs sm:text-sm text-[#2f2f33]/80 font-sans mt-0.5">
             Today 8 March 2026
           </p>
         </div>
 
-        <div className="flex gap-2 flex-shrink-0 ml-2">
+        <div className="flex gap-2 shrink-0 ml-2">
       
           
 
@@ -227,9 +324,9 @@ const Setting = () => {
       </div>
 
       {/* Alert Banner */}
-      <div className="w-full flex items-center justify-between px-4 sm:px-8 py-2 flex-shrink-0 bg-gray-50">
+      <div className="w-full flex items-center justify-between px-4 sm:px-8 py-2 shrink-0 bg-gray-50">
         <p className="text-xs sm:text-sm font-medium font-sans flex items-center gap-2 truncate">
-          <span className="text-green-500 flex-shrink-0">✓ All settings saved</span>
+          <span className="text-green-500 shrink-0">✓ All settings saved</span>
           <span className="text-[#2f2f33]/70 hidden sm:inline">— Your business information is up to date</span>
         </p>
       </div>
@@ -237,6 +334,58 @@ const Setting = () => {
       {/* Business Info Form */}
       <div className="flex-1 min-h-0 px-3 sm:px-8 py-4 bg-gray-100 flex items-start justify-center overflow-y-auto">
         <div className="w-full max-w-4xl p-4 sm:p-6 bg-white shadow-md rounded-lg">
+          <div className="mb-6 rounded-2xl border border-[#D4B483]/40 bg-[#f5f6f7] p-4 sm:p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-[#D4B483]/50 bg-white flex items-center justify-center">
+                  {businessLogoPreview ? (
+                    <img
+                      src={businessLogoPreview}
+                      alt="Business Logo"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-lg font-bold text-[#3a6f77]">
+                      {formik.values.businessName ? formik.values.businessName.charAt(0).toUpperCase() : 'B'}
+                    </span>
+                  )}
+                </div>
+
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#3a6f77]/70">Profile Summary</p>
+                  <h2 className="truncate text-xl font-bold text-[#2f2f33]">
+                    {hasProfile ? profileFormik.values.name || 'Profile' : formik.values.businessName || 'Business Profile'}
+                  </h2>
+                  <p className="truncate text-sm text-[#2f2f33]/70">
+                    {formik.values.businessEmail || profileFormik.values.email || 'No email added yet'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => profileSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    className="mt-3 inline-flex w-fit items-center justify-center rounded-xl border border-[#3a6f77] px-4 py-2 text-sm font-semibold text-[#3a6f77] transition-colors hover:bg-[#3a6f77] hover:text-[#f5f6f7]"
+                  >
+                    Edit
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:min-w-[320px]">
+                <div className="rounded-xl bg-white px-3 py-2 border border-[#2f2f33]/10">
+                  <p className="text-[10px] uppercase tracking-widest text-[#2f2f33]/45">Business</p>
+                  <p className="truncate text-sm font-semibold text-[#2f2f33]">{formik.values.businessName || 'Not set'}</p>
+                </div>
+                <div className="rounded-xl bg-white px-3 py-2 border border-[#2f2f33]/10">
+                  <p className="text-[10px] uppercase tracking-widest text-[#2f2f33]/45">Phone</p>
+                  <p className="truncate text-sm font-semibold text-[#2f2f33]">{profileFormik.values.phone || formik.values.businessPhone || 'Not set'}</p>
+                </div>
+                <div className="rounded-xl bg-white px-3 py-2 border border-[#2f2f33]/10">
+                  <p className="text-[10px] uppercase tracking-widest text-[#2f2f33]/45">Social</p>
+                  <p className="truncate text-sm font-semibold text-[#2f2f33]">{profileFormik.values.social ? 'Added' : 'Not set'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <h2 className="text-lg sm:text-xl font-bold mb-4">Business Information</h2>
           <form id="businessForm" onSubmit={formik.handleSubmit}>
 
@@ -244,6 +393,7 @@ const Setting = () => {
             <div className="grid grid-cols-2 gap-4 mb-3">
               <div>
                 <label className="block text-sm font-medium">Business Logo</label>
+
                 <input
                   type="file"
                   name="businessLogo"
@@ -258,7 +408,7 @@ const Setting = () => {
                     <img
                       src={URL.createObjectURL(formik.values.businessLogo)}
                       alt="Business Logo Preview"
-                      className="h-10 w-10 object-cover rounded-full border flex-shrink-0"
+                      className="h-10 w-10 object-cover rounded-full border shrink-0"
                     />
                     <p className="text-xs text-gray-600 truncate">
                       {formik.values.businessLogo.name}
@@ -299,7 +449,7 @@ const Setting = () => {
               <div>
                 <label className="block text-sm font-medium mb-1">Default Currency</label>
                 <div className="flex items-center gap-2 mt-1">
-                  <FaBuilding className="text-gray-500 flex-shrink-0" />
+                  <FaBuilding className="text-gray-500 shrink-0" />
                   <select
                     name="defaultCurrency"
                     onChange={formik.handleChange}
@@ -347,7 +497,7 @@ const Setting = () => {
               <div>
                 <label className="block text-sm font-medium mb-1">Phone</label>
                 <div className="flex items-center gap-2">
-                  <FaPhone className="text-gray-500 flex-shrink-0" />
+                  <FaPhone className="text-gray-500 shrink-0" />
                   <input
                     type="tel"
                     name="businessPhone"
@@ -363,7 +513,7 @@ const Setting = () => {
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <div className="flex items-center gap-2">
-                  <FaEnvelope className="text-gray-500 flex-shrink-0" />
+                  <FaEnvelope className="text-gray-500 shrink-0" />
                   <input
                     type="email"
                     name="businessEmail"
@@ -450,6 +600,88 @@ const Setting = () => {
               Save Information
             </button>
           </form>
+
+          <div ref={profileSectionRef} id="profile" className="mt-8 pt-6 border-t border-gray-200">
+            <h2 className="text-lg sm:text-xl font-bold mb-4">Profile Information</h2>
+            <p className="mb-4 text-sm text-[#2f2f33]/70">
+              Edit logo, name, email, phone, or social link below.
+            </p>
+
+            {profileLoading ? (
+              <p className="text-sm text-gray-500">Loading profile...</p>
+            ) : (
+              <form onSubmit={profileFormik.handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="flex items-center text-sm font-medium mb-1">
+                      <FaUser className="mr-2" /> Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      onChange={profileFormik.handleChange}
+                      value={profileFormik.values.name}
+                      className="w-full border rounded-md p-2 text-sm"
+                      placeholder="Your full name"
+                    />
+                    {profileFormik.errors.name && <p className="text-red-500 text-xs mt-1">{profileFormik.errors.name}</p>}
+                  </div>
+
+                  <div>
+                    <label className="flex items-center text-sm font-medium mb-1">
+                      <FaEnvelope className="mr-2" /> Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      onChange={profileFormik.handleChange}
+                      value={profileFormik.values.email}
+                      className="w-full border rounded-md p-2 text-sm"
+                      placeholder="you@example.com"
+                    />
+                    {profileFormik.errors.email && <p className="text-red-500 text-xs mt-1">{profileFormik.errors.email}</p>}
+                  </div>
+
+                  <div>
+                    <label className="flex items-center text-sm font-medium mb-1">
+                      <FaPhone className="mr-2" /> Phone Number
+                    </label>
+                    <input
+                      type="text"
+                      name="phone"
+                      onChange={profileFormik.handleChange}
+                      value={profileFormik.values.phone}
+                      className="w-full border rounded-md p-2 text-sm"
+                      placeholder="10 digit phone number"
+                    />
+                    {profileFormik.errors.phone && <p className="text-red-500 text-xs mt-1">{profileFormik.errors.phone}</p>}
+                  </div>
+
+                  <div>
+                    <label className="flex items-center text-sm font-medium mb-1">
+                      <FaLink className="mr-2" /> Social Media Link
+                    </label>
+                    <input
+                      type="text"
+                      name="social"
+                      onChange={profileFormik.handleChange}
+                      value={profileFormik.values.social}
+                      className="w-full border rounded-md p-2 text-sm"
+                      placeholder="https://..."
+                    />
+                    {profileFormik.errors.social && <p className="text-red-500 text-xs mt-1">{profileFormik.errors.social}</p>}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-[#3a6f77] text-white py-2 rounded hover:bg-[#2f2f33] transition"
+                >
+                  Save Profile
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </div>

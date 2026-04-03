@@ -109,8 +109,8 @@ const Dashboard = () => {
     <div className="h-[100vh] w-full  flex flex-col overflow-hidden">
 
       {/* Header */}
-      <div className="w-full  flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 flex-shrink-0">
-        <div>
+      <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-8 py-3 sm:py-4 shrink-0">
+        <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl text-[#2f2f33] font-bold font-serif">
             Dashboard
           </h1>
@@ -119,7 +119,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           <button className="px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold bg-[#D4B483] text-[#2f2f33] rounded-lg hover:bg-[#c9a86c] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5">
             Export
           </button>

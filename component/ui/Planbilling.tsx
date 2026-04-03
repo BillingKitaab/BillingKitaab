@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Script from "next/script";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FaArrowLeft } from "react-icons/fa";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -318,7 +320,13 @@ function FooterNote() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function PlanBilling() {
+export default function PlanBilling({
+  showBackButton = false,
+  backHref = '/landing#pricing',
+}: {
+  showBackButton?: boolean;
+  backHref?: string;
+} = {}) {
   const [currentPlanId, setCurrentPlanId] = useState<string>("free");
   const [plans, setPlans] = useState<Plan[]>(FALLBACK_PLANS);
   const [isYearly, setIsYearly] = useState<boolean>(true);
@@ -470,6 +478,25 @@ export default function PlanBilling() {
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8 xl:px-12 font-sans">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <div className="max-w-screen-xl mx-auto">
+
+        {showBackButton && (
+          <Link
+            href={backHref}
+            className="fixed top-4 left-4 z-50 flex items-center gap-2 px-4 py-2 rounded-full shadow-lg text-sm font-semibold border-2 transition-all duration-300 hover:scale-105"
+            style={{ backgroundColor: "#3a6f77", color: "#f5f6f7", borderColor: "#D4B483" }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.backgroundColor = "#D4B483";
+              (e.currentTarget as HTMLElement).style.color = "#2f2f33";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.backgroundColor = "#3a6f77";
+              (e.currentTarget as HTMLElement).style.color = "#f5f6f7";
+            }}
+          >
+            <FaArrowLeft className="text-sm" />
+            <span>Back</span>
+          </Link>
+        )}
 
         <PageHeader isYearly={isYearly} setIsYearly={setIsYearly} />
 
