@@ -23,7 +23,7 @@ const About = () => {
           {/* Cards Container */}
           <div
             className="relative w-[280px] sm:w-[340px] cursor-pointer"
-            style={{ height: hovered ? "380px" : "220px", transition: "height 0.4s ease" }}
+            style={{ height: "300px" }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >
