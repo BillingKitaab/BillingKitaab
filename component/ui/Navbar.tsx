@@ -73,7 +73,7 @@ const Navbar = () => {
         <p
           onClick={(e) => {
             e.preventDefault();
-            navigateWithFade("/#pricing");
+            navigateWithFade("/pricing");
           }}
           className="relative text-sm text-[#2f2f33] font-medium cursor-pointer 
           after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5 
@@ -248,7 +248,7 @@ const Navbar = () => {
               onClick={(e) => {
                 e.preventDefault();
                 setMobileOpen(false);
-                navigateWithFade("/#pricing");
+                navigateWithFade("/pricing");
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >

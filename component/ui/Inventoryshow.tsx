@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { FaCheckCircle, FaSearch } from 'react-icons/fa'
+import { FaCheckCircle, FaEdit, FaSearch, FaTrash } from 'react-icons/fa'
 import { AnimatePresence, motion } from 'framer-motion'
 
 type Product = {
@@ -64,6 +64,15 @@ const Inventoryshow = () => {
 
     return () => clearTimeout(timer)
   }, [toastKey])
+
+  const handleDeleteProduct = (productId: number) => {
+    const shouldDelete = window.confirm('Delete this product?')
+    if (!shouldDelete) return
+
+    const nextProducts = products.filter((product) => product.id !== productId)
+    setProducts(nextProducts)
+    localStorage.setItem('inventory_products', JSON.stringify(nextProducts))
+  }
 
   const filteredProducts = useMemo(() => {
     const term = searchTerm.trim().toLowerCase()
@@ -169,7 +178,7 @@ const Inventoryshow = () => {
               </div>
             ) : (
               <div className='mt-3 overflow-x-auto rounded-xl border border-[#2f2f33]/10'>
-                <table className='w-full min-w-[760px] bg-white'>
+                <table className='w-full min-w-190 bg-white'>
                   <thead className='bg-[#2f2f33] text-[#f5f6f7]'>
                     <tr>
                       <th className='px-3 py-2 text-left text-xs font-semibold'>Product</th>
@@ -180,6 +189,7 @@ const Inventoryshow = () => {
                       <th className='px-3 py-2 text-left text-xs font-semibold'>Selling</th>
                       <th className='px-3 py-2 text-left text-xs font-semibold'>Supplier</th>
                       <th className='px-3 py-2 text-left text-xs font-semibold'>Added At</th>
+                      <th className='px-3 py-2 text-left text-xs font-semibold'>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -193,6 +203,25 @@ const Inventoryshow = () => {
                         <td className='px-3 py-2 text-sm text-[#2f2f33]'>₹{item.sellingPrice.toFixed(2)}</td>
                         <td className='px-3 py-2 text-sm text-[#2f2f33]'>{item.supplier || '-'}</td>
                         <td className='px-3 py-2 text-xs text-[#2f2f33]/70'>{item.createdAt}</td>
+                        <td className='px-3 py-2'>
+                          <div className='flex flex-wrap gap-2'>
+                            <Link
+                              href={`/inventory/add-product?edit=${item.id}`}
+                              className='inline-flex items-center gap-1 rounded-md border border-[#3a6f77]/30 px-3 py-1.5 text-xs font-semibold text-[#3a6f77] transition-colors hover:border-[#3a6f77] hover:bg-[#3a6f77]/5'
+                            >
+                              <FaEdit className='text-[10px]' />
+                              Edit
+                            </Link>
+                            <button
+                              type='button'
+                              onClick={() => handleDeleteProduct(item.id)}
+                              className='inline-flex items-center gap-1 rounded-md border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:border-red-500 hover:bg-red-50'
+                            >
+                              <FaTrash className='text-[10px]' />
+                              Delete
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

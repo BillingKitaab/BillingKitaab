@@ -42,7 +42,7 @@ const Settingsidebar = () => {
         <h2 className="text-[#3a6f77] font-semibold mb-2">ACCOUNT</h2>
         <ul className="space-y-2">
           <Link
-          href='/profile'
+          href='/settings#profile'
           className="flex items-center gap-2 text-[#2f2f33] hover:text-[#D4B483] cursor-pointer">
             <FaUser /> Profile
           </Link>
@@ -83,7 +83,7 @@ const Settingsidebar = () => {
     <>
       {/* Mobile hamburger button */}
       <button
-        className="fixed top-4 left-4 z-50 md:hidden bg-[#f5f6f7] text-[#2f2f33] p-2 rounded-md shadow-md"
+        className="fixed top-[146px] left-4 z-50 md:hidden bg-[#f5f6f7] text-[#2f2f33] p-2 rounded-md shadow-md"
         onClick={() => setIsOpen(true)}
       >
         <FaBars size={18} />

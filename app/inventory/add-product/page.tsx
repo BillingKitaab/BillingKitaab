@@ -1,8 +1,8 @@
 "use client"
 
 import Sidebar from '@/component/ui/Sidebar'
-import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
 
 type Product = {
   id: number
@@ -18,6 +18,9 @@ type Product = {
 
 const page = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const [editProductId, setEditProductId] = useState<number | null>(null)
+  const [error, setError] = useState('')
   const [form, setForm] = useState({
     name: '',
     sku: '',
@@ -27,6 +30,39 @@ const page = () => {
     sellingPrice: '',
     supplier: '',
   })
+
+  useEffect(() => {
+    const editId = searchParams.get('edit')
+    if (!editId) return
+
+    const parsedEditId = Number(editId)
+    if (Number.isNaN(parsedEditId)) return
+
+    const raw = localStorage.getItem('inventory_products')
+    if (!raw) return
+
+    try {
+      const products = JSON.parse(raw) as Product[]
+      const existingProduct = Array.isArray(products)
+        ? products.find((item) => item.id === parsedEditId)
+        : undefined
+
+      if (!existingProduct) return
+
+      setEditProductId(existingProduct.id)
+      setForm({
+        name: existingProduct.name,
+        sku: existingProduct.sku,
+        purchasePrice: String(existingProduct.purchasePrice),
+        quantity: String(existingProduct.quantity),
+        category: existingProduct.category,
+        sellingPrice: String(existingProduct.sellingPrice),
+        supplier: existingProduct.supplier,
+      })
+    } catch {
+      setEditProductId(null)
+    }
+  }, [searchParams])
 
   const purchase = Number(form.purchasePrice || 0)
   const selling = Number(form.sellingPrice || 0)
@@ -40,9 +76,22 @@ const page = () => {
 
   const handleAddProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setError('')
+
+    const raw = localStorage.getItem('inventory_products')
+    const prevProducts: Product[] = raw ? JSON.parse(raw) : []
+    const normalizedName = form.name.trim().toLowerCase()
+    const hasDuplicateName = prevProducts.some(
+      (product) => product.id !== editProductId && product.name.trim().toLowerCase() === normalizedName
+    )
+
+    if (hasDuplicateName) {
+      setError('Same product name already exists. Please use a different name.')
+      return
+    }
 
     const nextProduct: Product = {
-      id: Date.now(),
+      id: editProductId ?? Date.now(),
       name: form.name.trim(),
       sku: form.sku.trim(),
       quantity: Number(form.quantity || 0),
@@ -53,9 +102,13 @@ const page = () => {
       createdAt: new Date().toLocaleString(),
     }
 
-    const raw = localStorage.getItem('inventory_products')
-    const prevProducts: Product[] = raw ? JSON.parse(raw) : []
-    const nextProducts = [nextProduct, ...prevProducts]
+    const nextProducts = editProductId
+      ? prevProducts.map((product) =>
+          product.id === editProductId
+            ? { ...nextProduct, createdAt: product.createdAt }
+            : product
+        )
+      : [nextProduct, ...prevProducts]
 
     localStorage.setItem('inventory_products', JSON.stringify(nextProducts))
     sessionStorage.setItem('inventory_last_added_product', nextProduct.name)
@@ -68,7 +121,9 @@ const page = () => {
       <div className='w-full min-h-screen bg-[#f5f6f7] p-4 sm:p-6 md:p-8'>
         <div className='mx-auto max-w-4xl rounded-2xl border border-[#2f2f33]/10 bg-white p-4 sm:p-6'>
           <div className='mb-4 flex items-center justify-between gap-3'>
-            <h1 className='text-2xl sm:text-3xl font-extrabold text-[#2f2f33]'>Add Product</h1>
+            <h1 className='text-2xl sm:text-3xl font-extrabold text-[#2f2f33]'>
+              {editProductId ? 'Edit Product' : 'Add Product'}
+            </h1>
             <button
               type='button'
               onClick={() => router.push('/inventory')}
@@ -79,6 +134,12 @@ const page = () => {
           </div>
 
           <form onSubmit={handleAddProduct} className='space-y-4'>
+            {error ? (
+              <div className='rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700'>
+                {error}
+              </div>
+            ) : null}
+
             <div>
               <label className='mb-1 block text-sm font-semibold text-[#2f2f33]'>Product Name</label>
               <input
@@ -193,7 +254,7 @@ const page = () => {
               type='submit'
               className='w-full rounded-lg bg-[#3a6f77] px-4 py-2.5 text-sm font-bold text-[#f5f6f7] transition-colors hover:bg-[#2f2f33]'
             >
-              Add to Stock
+              {editProductId ? 'Save Changes' : 'Add to Stock'}
             </button>
           </form>
         </div>

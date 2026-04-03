@@ -1,12 +1,7 @@
-import Profile from '@/component/ui/Profile'
-import React from 'react'
+import { redirect } from 'next/navigation'
 
 const page = () => {
-  return (
-    <div>
-      <Profile />
-    </div>
-  )
+  redirect('/settings#profile')
 }
 
 export default page

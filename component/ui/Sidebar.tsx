@@ -62,6 +62,14 @@ const HomeIcon = () => (
   </svg>
 );
 
+const MenuIcon = () => (
+  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <line x1="4" y1="7" x2="20" y2="7" />
+    <line x1="4" y1="12" x2="20" y2="12" />
+    <line x1="4" y1="17" x2="20" y2="17" />
+  </svg>
+);
+
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -85,6 +93,24 @@ export default function Sidebar() {
     loadUser();
   }, []);
 
+  useEffect(() => {
+    const applyMobileOffset = () => {
+      if (window.innerWidth < 768) {
+        document.body.style.paddingTop = '88px';
+      } else {
+        document.body.style.paddingTop = '';
+      }
+    };
+
+    applyMobileOffset();
+    window.addEventListener('resize', applyMobileOffset);
+
+    return () => {
+      window.removeEventListener('resize', applyMobileOffset);
+      document.body.style.paddingTop = '';
+    };
+  }, []);
+
   const handleNav = (id: string) => {
     setActiveId(id);
     setIsOpen(false);
@@ -96,7 +122,7 @@ export default function Sidebar() {
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-screen w-60 px-3 py-5 bg-[#2f2f33]">
+    <div className="flex flex-col min-h-full w-full md:h-screen md:w-60 px-3 py-5 bg-[#2f2f33]">
       <div className="flex items-center justify-between px-2 mb-2">
         <img src="/logo/smart.svg" alt="Logo" className="h-12 object-contain" />
         <button
@@ -183,16 +209,22 @@ export default function Sidebar() {
         <SidebarContent />
       </aside>
 
-      <div className="md:hidden fixed top-4 left-4 z-50">
-        {!isOpen && (
-          <button
-            onClick={() => setIsOpen(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#1a1a2e]"
-            style={{ borderRadius: "12px" }}
-          >
-            <BrandIcon />
-          </button>
-        )}
+      <div className="md:hidden fixed top-4 left-4 right-4 z-50">
+        <div className="w-full rounded-3xl border border-[#D4B483]/60 bg-linear-to-r from-[#f5f6f7] via-[#f5f6f7] to-[#D4B483]/15 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <p className="text-3xl leading-none font-bold tracking-tight">
+              <span className="text-[#2f2f33]">Billing</span>
+              <span className="text-[#3a6f77]">Kitaab</span>
+            </p>
+            <button
+              onClick={() => setIsOpen((prev) => !prev)}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-[#3a6f77]/35 bg-[#f5f6f7] text-[#2f2f33]"
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <CloseIcon /> : <MenuIcon />}
+            </button>
+          </div>
+        </div>
       </div>
 
       {isOpen && (
@@ -201,7 +233,7 @@ export default function Sidebar() {
             className="md:hidden fixed inset-0 z-40 bg-black/50"
             onClick={() => setIsOpen(false)}
           />
-          <aside className="md:hidden fixed top-0 left-0 h-full z-50 shadow-xl">
+          <aside className="md:hidden fixed top-24 left-4 right-4 z-50 max-h-[78vh] overflow-y-auto rounded-2xl bg-[#2f2f33] border border-[#D4B483]/40">
             <SidebarContent />
           </aside>
         </>
