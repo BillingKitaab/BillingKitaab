@@ -123,14 +123,8 @@ export default function Sidebar() {
 
   const SidebarContent = () => (
     <div className="flex flex-col min-h-full w-full md:h-screen md:w-60 px-3 py-5 bg-[#2f2f33]">
-      <div className="flex items-center justify-between px-2 mb-2">
+      <div className="flex items-center px-2 mb-2">
         <img src="/logo/smart.svg" alt="Logo" className="h-12 object-contain" />
-        <button
-          className="md:hidden text-[rgba(245,246,247,0.45)]"
-          onClick={() => setIsOpen(false)}
-        >
-          <CloseIcon />
-        </button>
       </div>
 
       <Link
