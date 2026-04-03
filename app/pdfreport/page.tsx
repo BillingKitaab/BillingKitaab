@@ -5,9 +5,9 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className='flex'>
+    <div className='flex h-screen overflow-hidden'>
       <Sidebar />
-      <div className='flex-1 flex flex-col'>
+      <div className='flex-1 flex flex-col overflow-y-auto'>
         <PDFreport />
         <RecentReportsPage />
       </div>
