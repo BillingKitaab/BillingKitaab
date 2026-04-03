@@ -2,7 +2,7 @@
 
 import Sidebar from '@/component/ui/Sidebar'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 
 type Product = {
   id: number
@@ -16,7 +16,7 @@ type Product = {
   createdAt: string
 }
 
-const page = () => {
+const AddProductPageContent = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [editProductId, setEditProductId] = useState<number | null>(null)
@@ -263,4 +263,10 @@ const page = () => {
   )
 }
 
-export default page
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <AddProductPageContent />
+    </Suspense>
+  )
+}
