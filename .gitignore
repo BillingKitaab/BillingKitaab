@@ -32,11 +32,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# netlify
-.netlify
-netlify_deploy.log
-netlify_build.log
-build_error.txt
 
 # typescript
 *.tsbuildinfo
