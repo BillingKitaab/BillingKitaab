@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import jsPDF from "jspdf";
 import { DollarSign, FileText, Copy, FileOutput, AlertTriangle, FileIcon, Eye, Download, Calendar, Users, Receipt, Trash2 } from "lucide-react";
 
 // ── Template Type ──
@@ -29,7 +31,17 @@ interface Report {
 }
 
 // ── ConfigurePanel Component ──
-function ConfigurePanel({ selected, templates }: { selected: number | null; templates: Template[] }) {
+function ConfigurePanel({
+  selected,
+  templates,
+  onPreview,
+  onGenerate,
+}: {
+  selected: number | null;
+  templates: Template[];
+  onPreview: (template: Template) => void;
+  onGenerate: (template: Template) => void;
+}) {
   const t = templates.find((t: Template) => t.id === selected);
   const [dateFrom] = useState("01-01-2026");
   const [dateTo] = useState("20-02-2026");
@@ -116,10 +128,10 @@ function ConfigurePanel({ selected, templates }: { selected: number | null; temp
 
       {/* Buttons */}
       <div className="flex gap-2 mt-2">
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold flex-1 justify-center transition-all duration-200 hover:-translate-y-0.5" style={{ border: "1.5px solid #f5f6f730", color: "#f5f6f7", background: "transparent" }}>
+        <button onClick={() => onPreview(t)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold flex-1 justify-center transition-all duration-200 hover:-translate-y-0.5" style={{ border: "1.5px solid #f5f6f730", color: "#f5f6f7", background: "transparent" }}>
           <Eye size={13} /> Preview
         </button>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold flex-1 justify-center transition-all duration-200 hover:-translate-y-0.5" style={{ background: t.accentColor, color: "#2f2f33" }}>
+        <button onClick={() => onGenerate(t)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold flex-1 justify-center transition-all duration-200 hover:-translate-y-0.5" style={{ background: t.accentColor, color: "#2f2f33" }}>
           <Download size={13} /> Generate
         </button>
       </div>
@@ -153,7 +165,7 @@ function RecentReports() {
           </Link>
           <button
             onClick={clearAll}
-            className="px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 hover:-translate-y-0.5 flex-shrink-0"
+            className="px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 hover:-translate-y-0.5"
             style={{ border: "1.5px solid #2f2f3330", color: "#2f2f33", background: "transparent" }}
           >
             Clear History
@@ -196,7 +208,7 @@ function RecentReports() {
               {/* REPORT — icon + title + subtitle */}
               <div className="flex items-center gap-3 mb-2 sm:mb-0">
                 <div
-                  className="flex items-center justify-center rounded-lg flex-shrink-0"
+                  className="flex items-center justify-center rounded-lg"
                   style={{ width: "34px", height: "34px", background: r.iconBg }}
                 >
                   {r.icon}
@@ -345,12 +357,57 @@ const templates: Template[] = [
 
 // ── Main Component ──
 export default function PDFreport() {
+  const router = useRouter();
   const [selected, setSelected] = useState<number | null>(3);
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+
+  const handleGenerateReport = () => {
+    const generatedReport = {
+      id: Date.now(),
+      iconKey: "FileText",
+      iconBg: "#3a6f7720",
+      title: "Invoice Summary",
+      subtitle: "Invoice",
+      period: "Current month",
+      generated: new Date().toLocaleString("en-GB"),
+      size: "0.8 MB",
+      pages: "2 pg",
+    };
+
+    if (typeof window !== "undefined") {
+      const existingReports = JSON.parse(window.localStorage.getItem("billingkitaab:recentReports") || "[]");
+      window.localStorage.setItem(
+        "billingkitaab:recentReports",
+        JSON.stringify([generatedReport, ...existingReports].slice(0, 8))
+      );
+    }
+
+    router.push("/pdfreport/reports");
+  };
+
+  const handlePreviewTemplate = (template: Template) => {
+    setPreviewTemplate(template);
+  };
+
+  const handleGenerateTemplate = (template: Template) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    doc.setFontSize(18);
+    doc.text(template.title, 14, 18);
+
+    doc.setFontSize(11);
+    doc.text(template.desc, 14, 30, { maxWidth: pageWidth - 28 });
+    doc.text(`Tags: ${template.tags.join(", ")}`, 14, 44, { maxWidth: pageWidth - 28 });
+    doc.text(`Generated: ${new Date().toLocaleString("en-GB")}`, 14, 52);
+
+    doc.save(`${template.title.replace(/\s+/g, "-")}.pdf`);
+  };
 
   return (
     <div className="min-h-screen w-full flex flex-col" style={{ background: "#f5f6f7" }}>
       {/* ── Header ── */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-4 flex-shrink-0" style={{ borderBottom: "1px solid #2f2f3318" }}>
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4" style={{ borderBottom: "1px solid #2f2f3318" }}>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold" style={{ color: "#2f2f33" }}>PDF Reports</h1>
           <p suppressHydrationWarning className="text-xs mt-0.5" style={{ color: "#2f2f3360" }}>{`Today ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`}</p>
@@ -361,7 +418,7 @@ export default function PDFreport() {
             <span className="hidden sm:inline">Copy All Links</span>
             <span className="sm:hidden">Copy</span>
           </button>
-          <button className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 hover:-translate-y-0.5" style={{ border: "1.5px solid #3a6f77", color: "#3a6f77", background: "transparent" }}>
+          <button onClick={handleGenerateReport} className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 hover:-translate-y-0.5" style={{ border: "1.5px solid #3a6f77", color: "#3a6f77", background: "transparent" }}>
             <FileOutput size={13} />
             <span className="hidden sm:inline">Generate Report</span>
             <span className="sm:hidden">Generate</span>
@@ -416,10 +473,57 @@ export default function PDFreport() {
         </div>
 
         {/* ── Right: Configure Panel ── */}
-        <div className="w-full lg:w-80 xl:w-96 px-4 sm:px-6 py-6 flex-shrink-0" style={{ background: "#2f2f33" }}>
-          <ConfigurePanel selected={selected} templates={templates} />
+        <div className="w-full lg:w-80 xl:w-96 px-4 sm:px-6 py-6" style={{ background: "#2f2f33" }}>
+          <ConfigurePanel
+            selected={selected}
+            templates={templates}
+            onPreview={handlePreviewTemplate}
+            onGenerate={handleGenerateTemplate}
+          />
         </div>
       </div>
+
+      {previewTemplate && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+          onClick={() => setPreviewTemplate(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-white/10 bg-[#2f2f33] p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-[#f5f6f740]">Preview</p>
+                <h2 className="mt-1 text-xl font-bold text-[#f5f6f7]">{previewTemplate.title}</h2>
+              </div>
+              <button
+                onClick={() => setPreviewTemplate(null)}
+                className="rounded-lg px-3 py-1.5 text-xs font-bold text-[#f5f6f7] transition-all duration-150 hover:bg-white/10"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="mt-4 rounded-xl bg-[#1e1e22] p-4">
+              <div className="rounded-xl bg-[#f5f6f7] p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  {previewTemplate.icon}
+                  <span className="font-bold text-sm" style={{ color: "#2f2f33" }}>{previewTemplate.title}</span>
+                </div>
+                <p className="text-sm" style={{ color: "#2f2f3360" }}>{previewTemplate.desc}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {previewTemplate.tags.map((tag) => (
+                    <span key={tag} className="px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide" style={{ background: `${previewTemplate.accentColor}18`, color: previewTemplate.accentColor, border: `1px solid ${previewTemplate.accentColor}50` }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Recent Reports Section ── */}
       {/* Recent reports moved to separate page at /pdfreport/reports */}

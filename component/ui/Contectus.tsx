@@ -62,7 +62,7 @@ const Contectus = () => {
                   <a href="#" aria-label="Facebook" className="text-[#D4B483] bg-[#f5f6f7]/95 rounded-full p-1.5 shadow-sm border border-[#D4B483]">
                     <FaFacebookF size={14} />
                   </a>
-                  <a href="#" aria-label="Instagram" className="text-[#3a6f77] bg-[#f5f6f7]/95 rounded-full p-1.5 shadow-sm border border-[#D4B483]">
+                  <a href="https://www.instagram.com/creatorlalith?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" aria-label="Instagram" className="text-[#3a6f77] bg-[#f5f6f7]/95 rounded-full p-1.5 shadow-sm border border-[#D4B483]">
                     <FaInstagram size={14} />
                   </a>
                   <a href="#" aria-label="LinkedIn" className="text-[#2f2f33] bg-[#f5f6f7]/95 rounded-full p-1.5 shadow-sm border border-[#D4B483]">

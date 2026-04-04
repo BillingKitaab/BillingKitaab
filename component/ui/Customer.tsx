@@ -127,6 +127,38 @@ const Customer = () => {
     return 'bg-[#a0622a]';
   };
 
+  const handleExportCSV = () => {
+    const rows = filtered.map((customer) => ({
+      Name: customer.name || '',
+      Email: customer.email || '',
+      Phone: customer.phone || '',
+      City: customer.city || '',
+      Revenue: customer.revenue || '',
+      Status: customer.status || '',
+    }));
+
+    if (rows.length === 0) {
+      alert('No customers to export.');
+      return;
+    }
+
+    const headers = Object.keys(rows[0]);
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((row) =>
+        headers.map((header) => `"${String(row[header as keyof typeof row]).replace(/"/g, '""')}"`).join(',')
+      ),
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'customers.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const filtered = customers
     .filter(c => {
       if (activeTab === 'good') return c.status === 'good';
@@ -147,7 +179,7 @@ const Customer = () => {
 
   const CustomerProfile = ({ cust, onClose }: { cust: any; onClose: () => void }) => (
     <div className="h-full flex flex-col bg-[#f5f6f7]">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#2f2f33]/10 flex-shrink-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-[#2f2f33]/10 shrink-0">
         <h2 className="text-sm font-bold text-[#2f2f33] font-serif m-0">Customer Profile</h2>
         <button
           onClick={onClose}
@@ -155,7 +187,7 @@ const Customer = () => {
         >✕</button>
       </div>
 
-      <div className="flex flex-col items-center px-5 py-5 border-b border-[#2f2f33]/10 flex-shrink-0">
+      <div className="flex flex-col items-center px-5 py-5 border-b border-[#2f2f33]/10 shrink-0">
         <div className="w-14 h-14 rounded-full bg-[#D4B483] text-[#2f2f33] flex items-center justify-center font-bold text-2xl font-serif mb-3">
           {cust.name.charAt(0)}
         </div>
@@ -182,7 +214,7 @@ const Customer = () => {
         ))}
       </div>
 
-      <div className="flex gap-2 px-5 py-4 border-t border-[#2f2f33]/10 flex-shrink-0">
+      <div className="flex gap-2 px-5 py-4 border-t border-[#2f2f33]/10 shrink-0">
         <button className="flex-1 py-2 text-xs font-bold bg-[#D4B483] text-[#2f2f33] rounded-lg border-none cursor-pointer hover:bg-[#c9a86c] transition-all duration-200">
           Send Invoice
         </button>
@@ -212,7 +244,7 @@ const Customer = () => {
     <div className="h-screen w-full min-w-0 flex flex-col bg-[#f5f6f7] font-sans overflow-hidden">
       <div className="flex-1 min-h-0 flex overflow-hidden">
         <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-          <div className="w-full flex items-center justify-between px-4 py-3 flex-shrink-0 flex-wrap gap-2 bg-[#f5f6f7]">
+          <div className="w-full flex items-center justify-between px-4 py-3 shrink-0 flex-wrap gap-2 bg-[#f5f6f7]">
             <div>
               <h1 className="text-xl sm:text-2xl text-[#2f2f33] font-bold font-serif m-0">Customers</h1>
               <p suppressHydrationWarning className="font-medium text-xs text-[#2f2f33]/80 mt-0.5 m-0">{`Today ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`}</p>
@@ -228,7 +260,7 @@ const Customer = () => {
                   className="outline-none text-xs font-medium text-[#2f2f33] placeholder-[#2f2f33]/50 bg-transparent border-none w-20 sm:w-36"
                 />
               </div>
-              <button className="px-3 py-1.5 text-xs font-bold bg-[#D4B483] text-[#2f2f33] rounded-lg border-none cursor-pointer hover:bg-[#c9a86c] transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5">
+              <button onClick={handleExportCSV} className="px-3 py-1.5 text-xs font-bold bg-[#D4B483] text-[#2f2f33] rounded-lg border-none cursor-pointer hover:bg-[#c9a86c] transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5">
                 Export CSV
               </button>
               <button
@@ -243,14 +275,14 @@ const Customer = () => {
             </div>
           </div>
 
-          <div className="flex gap-2 mx-3 mb-2 flex-shrink-0 overflow-x-auto pb-1">
+          <div className="flex gap-2 mx-3 mb-2 shrink-0 overflow-x-auto pb-1">
             {[
               { label: 'TOTAL CUSTOMERS', value: String(customerStats.total), sub: `↑ ${customerStats.thisMonth} added this month`, subClass: 'text-green-300', valueClass: 'text-white' },
               { label: 'TOTAL BILLED', value: `₹${customerStats.revenue.toLocaleString('en-IN')}`, sub: '↑ Lifetime revenue', subClass: 'text-green-300', valueClass: 'text-green-400' },
               { label: 'GOOD STANDING', value: String(customerStats.good), sub: 'All paid on time', subClass: 'text-[#f5f6f7]/50', valueClass: 'text-[#D4B483]' },
               { label: 'NEED ATTENTION', value: String(customerStats.overdue), sub: 'Overdue invoices', subClass: 'text-[#f5f6f7]/50', valueClass: 'text-red-400' },
             ].map((card, i) => (
-              <div key={i} className="min-w-[100px] flex-1 bg-[#2f2f33] rounded-xl p-2.5 sm:p-3">
+              <div key={i} className="flex-1 bg-[#2f2f33] rounded-xl p-2.5 sm:p-3" style={{ minWidth: "100px" }}>
                 <p className="text-[9px] font-medium text-[#f5f6f7]/70 mb-1 m-0">{card.label}</p>
                 <h2 className={`text-xl sm:text-3xl font-bold font-serif mb-0.5 m-0 ${card.valueClass}`}>{card.value}</h2>
                 <p className={`text-[10px] font-medium m-0 ${card.subClass}`}>{card.sub}</p>
@@ -258,7 +290,7 @@ const Customer = () => {
             ))}
           </div>
 
-          <div className="flex items-center justify-between px-3 py-2 bg-[#f5f6f7] border-b border-[#2f2f33]/10 flex-shrink-0 flex-wrap gap-2">
+          <div className="flex items-center justify-between px-3 py-2 bg-[#f5f6f7] border-b border-[#2f2f33]/10 shrink-0 flex-wrap gap-2">
             <div className="flex gap-1.5 flex-wrap">
               {[
                 { key: 'all', label: `All (${customerStats.total})`, activeClass: 'bg-[#D4B483] text-[#2f2f33] border-transparent', inactiveClass: 'border-[#D4B483] text-[#D4B483] bg-transparent' },
@@ -288,13 +320,13 @@ const Customer = () => {
           </div>
 
           <div className="flex-1 min-h-0 mx-3 my-3 bg-[#2f2f33] rounded-xl flex flex-col overflow-hidden">
-            <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr] gap-x-3 px-5 py-3 flex-shrink-0 border-b border-[#f5f6f7]/10">
+            <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr] gap-x-3 px-5 py-3 shrink-0 border-b border-[#f5f6f7]/10">
               {['CUSTOMER', 'EMAIL', 'PHONE', 'CITY', 'REVENUE', 'STATUS'].map((h, i) => (
                 <span key={i} className="text-[10px] font-semibold text-[#f5f6f7]/40 uppercase tracking-widest">{h}</span>
               ))}
             </div>
 
-            <div className="grid grid-cols-[1fr_1fr_80px] sm:hidden gap-x-3 px-4 py-2.5 flex-shrink-0 border-b border-[#f5f6f7]/10">
+            <div className="grid grid-cols-[1fr_1fr_80px] sm:hidden gap-x-3 px-4 py-2.5 shrink-0 border-b border-[#f5f6f7]/10">
               {['CUSTOMER', 'CONTACT', 'STATUS'].map((h, i) => (
                 <span key={i} className="text-[9px] font-semibold text-[#f5f6f7]/40 uppercase tracking-widest">{h}</span>
               ))}
@@ -320,7 +352,7 @@ const Customer = () => {
                         <span className="text-[10px] text-[#f5f6f7]/40">{cust.invoices} invoices</span>
                       </div>
                       <span className={`text-[11px] px-2 py-0.5 rounded-full inline-flex items-center gap-1.5 w-fit whitespace-nowrap ${statusClass(cust.status)}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotClass(cust.status)}`}></span>
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotClass(cust.status)}`}></span>
                         {cust.status}
                       </span>
                     </div>
@@ -336,7 +368,7 @@ const Customer = () => {
                       </div>
                       <div className="flex flex-col items-start gap-0.5">
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full inline-flex items-center gap-1 w-fit whitespace-nowrap ${statusClass(cust.status)}`}>
-                          <span className={`w-1 h-1 rounded-full flex-shrink-0 ${dotClass(cust.status)}`}></span>
+                          <span className={`w-1 h-1 rounded-full shrink-0 ${dotClass(cust.status)}`}></span>
                           {cust.status}
                         </span>
                         <span className="text-[10px] text-[#f5f6f7]/50">{cust.revenue}</span>
@@ -351,7 +383,7 @@ const Customer = () => {
 
         {selectedCustomer && (
           <>
-            <div className="hidden sm:flex w-[300px] lg:w-[340px] flex-shrink-0 border-l border-[#2f2f33]/10 flex-col overflow-hidden">
+            <div className="hidden sm:flex shrink-0 border-l border-[#2f2f33]/10 flex-col overflow-hidden" style={{ width: "300px", maxWidth: "340px" }}>
               <CustomerProfile cust={selectedCustomer} onClose={() => setSelectedCustomer(null)} />
             </div>
 
