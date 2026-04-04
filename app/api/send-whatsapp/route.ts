@@ -4,7 +4,18 @@ import twilio from "twilio";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { clientPhone, clientName, businessName, currency, total, publicUrl, isReminder } = body;
+    const {
+      clientPhone,
+      clientName,
+      businessName,
+      currency,
+      total,
+      publicUrl,
+      isReminder,
+      payment_link_url,
+      invoice_number,
+      due_date,
+    } = body;
 
     if (!clientPhone || !publicUrl) {
       return NextResponse.json(
@@ -26,26 +37,42 @@ export async function POST(req: NextRequest) {
 
     const client = twilio(accountSid, authToken);
 
-    // Ensure phone number starts with + 
-    // (Assuming user might enter "919876543210" or "+919876543210")
-    let formattedPhone = clientPhone.replace(/\s+/g, '');
-    if (!formattedPhone.startsWith('+')) {
-      // For India as default if missing, though it's best to have the full country code
-      // We will blindly prepend '+' if it looks like they included country code without it.
-      formattedPhone = '+' + formattedPhone; 
+    let formattedPhone = clientPhone.replace(/\s+/g, "");
+    if (!formattedPhone.startsWith("+")) {
+      formattedPhone = "+" + formattedPhone;
     }
 
-    let messageBody = `Hello ${clientName || "Customer"},\n\nYou have a new invoice from ${businessName || "us"}.`;
+    // Build message
+    let messageBody: string;
+
     if (isReminder) {
-      messageBody = `🔔 Reminder: Hello ${clientName || "Customer"},\n\nThis is a gentle reminder regarding your invoice from ${businessName || "us"}.`;
+      messageBody =
+        `🔔 *Payment Reminder*\n\n` +
+        `Hello ${clientName || "Customer"},\n\n` +
+        `This is a gentle reminder for your invoice${invoice_number ? ` *#${invoice_number}*` : ""} from *${businessName || "us"}*.`;
+    } else {
+      messageBody =
+        `🧾 *New Invoice*\n\n` +
+        `Hello ${clientName || "Customer"},\n\n` +
+        `You have a new invoice${invoice_number ? ` *#${invoice_number}*` : ""} from *${businessName || "us"}*.`;
     }
 
     if (total) {
-      messageBody += `\nAmount Due: ${currency || "INR"} ${total}`;
+      messageBody += `\n\n💰 *Amount Due:* ${currency || "INR"} ${Number(total).toLocaleString("en-IN")}`;
     }
-    
-    messageBody += `\n\nView or download your invoice here:\n${publicUrl}`;
-    
+
+    if (due_date) {
+      messageBody += `\n📅 *Due Date:* ${new Date(due_date).toLocaleDateString("en-IN")}`;
+    }
+
+    // Payment link — primary CTA
+    if (payment_link_url) {
+      messageBody += `\n\n💳 *Pay Now:*\n${payment_link_url}`;
+    }
+
+    // Invoice PDF link
+    messageBody += `\n\n📄 *View Invoice:*\n${publicUrl}`;
+
     const message = await client.messages.create({
       body: messageBody,
       from: `whatsapp:${fromNumber}`,

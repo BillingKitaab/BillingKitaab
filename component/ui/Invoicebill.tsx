@@ -53,6 +53,14 @@ const InvoiceForm = () => {
   const [submitAction, setSubmitAction] = useState<'save' | 'send'>('save');
   const [nextInvoiceNumber, setNextInvoiceNumber] = useState("INV-0001");
 
+  // Payment Link + QR Modal state
+  const [savedInvoice, setSavedInvoice] = useState<any>(null);
+  const [showPayModal, setShowPayModal] = useState(false);
+  const [payLinkLoading, setPayLinkLoading] = useState(false);
+  const [paymentLinkUrl, setPaymentLinkUrl] = useState("");
+  const [qrUrl, setQrUrl] = useState("");
+  const [payNotifLoading, setPayNotifLoading] = useState(false);
+
   useEffect(() => {
     const loadBusiness = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -425,6 +433,18 @@ const InvoiceForm = () => {
       return alert("Error saving invoice: " + (invErr?.message || "unknown"));
     }
 
+    // Store saved invoice for payment modal
+    setSavedInvoice({
+      id: invData.id,
+      invoice_number: values.invoiceNumber,
+      total_amount: total,
+      due_date: values.dueDate,
+      client_name: values.clientName,
+      client_email: values.clientEmail,
+      client_phone: values.clientPhone,
+      public_url: publicUrl,
+    });
+
     const itemsToInsert = values.items.map((i: any, index: number) => ({
       invoice_id: invData.id,
       line_no: index + 1,
@@ -517,9 +537,97 @@ const InvoiceForm = () => {
     } else {
       alert("Invoice saved to database!");
     }
+
+    // Show payment request modal after save
+    setShowPayModal(true);
   };
 
   const getToday = () => new Date().toISOString().split('T')[0];
+
+  // Generate payment link + QR
+  const handleCreatePaymentLink = async () => {
+    if (!savedInvoice) return;
+    setPayLinkLoading(true);
+    try {
+      const res = await fetch('/api/invoice/create-payment-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoice_id: savedInvoice.id,
+          amount: savedInvoice.total_amount,
+          currency: 'INR',
+          customer_name: savedInvoice.client_name,
+          customer_email: savedInvoice.client_email,
+          customer_phone: savedInvoice.client_phone,
+          invoice_number: savedInvoice.invoice_number,
+          business_name: business?.business_name,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        alert('Failed to create payment link: ' + (data.error || 'Unknown error'));
+        return;
+      }
+      setPaymentLinkUrl(data.payment_link_url);
+      setQrUrl(data.qr_url);
+    } catch (err: any) {
+      alert('Error: ' + err.message);
+    } finally {
+      setPayLinkLoading(false);
+    }
+  };
+
+  // Send payment request via Email + WhatsApp
+  const handleSendPaymentRequest = async () => {
+    if (!savedInvoice || !paymentLinkUrl) return;
+    setPayNotifLoading(true);
+    const bizName = business?.business_name || 'us';
+    let results: string[] = [];
+    try {
+      if (savedInvoice.client_email) {
+        const res = await fetch('/api/send-invoice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clientEmail: savedInvoice.client_email,
+            clientName: savedInvoice.client_name,
+            businessName: bizName,
+            currency: 'INR',
+            total: savedInvoice.total_amount,
+            publicUrl: savedInvoice.public_url || '#',
+            qr_url: qrUrl,
+            payment_link_url: paymentLinkUrl,
+            invoice_number: savedInvoice.invoice_number,
+            due_date: savedInvoice.due_date,
+          }),
+        });
+        results.push(res.ok ? '✅ Email sent' : '❌ Email failed');
+      }
+      if (savedInvoice.client_phone) {
+        const res = await fetch('/api/send-whatsapp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clientPhone: savedInvoice.client_phone,
+            clientName: savedInvoice.client_name,
+            businessName: bizName,
+            currency: 'INR',
+            total: savedInvoice.total_amount,
+            publicUrl: savedInvoice.public_url || '#',
+            payment_link_url: paymentLinkUrl,
+            invoice_number: savedInvoice.invoice_number,
+            due_date: savedInvoice.due_date,
+          }),
+        });
+        results.push(res.ok ? '✅ WhatsApp sent' : '❌ WhatsApp failed');
+      }
+      alert(results.join('\n') || 'No contact info available');
+    } catch (err: any) {
+      alert('Send failed: ' + err.message);
+    } finally {
+      setPayNotifLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-8 bg-white rounded-lg shadow-sm border border-gray-100">
@@ -782,13 +890,80 @@ const InvoiceForm = () => {
                 </button>
               </div>
 
+
             </Form>
           );
         }}
       </Formik>
+
+      {/* ===================== PAYMENT REQUEST MODAL ===================== */}
+      {showPayModal && savedInvoice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
+            <button
+              onClick={() => { setShowPayModal(false); setPaymentLinkUrl(""); setQrUrl(""); }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold leading-none"
+            >×</button>
+
+            <h2 className="text-xl font-bold text-[#2f2f33] mb-1">Send Payment Request</h2>
+            <p className="text-sm text-gray-500 mb-5">
+              Invoice <strong>#{savedInvoice.invoice_number}</strong> · ₹{Number(savedInvoice.total_amount).toLocaleString("en-IN")} saved ✅
+            </p>
+
+            {!paymentLinkUrl ? (
+              <div className="flex flex-col gap-4">
+                <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm text-blue-700">
+                  A unique Razorpay payment link + QR code will be generated. When your customer pays, the invoice is auto-marked as <strong>Paid</strong>.
+                </div>
+                <button
+                  onClick={handleCreatePaymentLink}
+                  disabled={payLinkLoading}
+                  className={`w-full py-3 rounded-xl text-sm font-bold text-white transition-all ${payLinkLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#3a6f77] hover:bg-[#2c5359]"}`}
+                >
+                  {payLinkLoading ? "⏳ Generating..." : "⚡ Generate Payment Link & QR"}
+                </button>
+                <button
+                  onClick={() => setShowPayModal(false)}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-gray-500 border border-gray-200 hover:bg-gray-50"
+                >
+                  Skip for now
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-4">
+                {qrUrl && (
+                  <div className="flex flex-col items-center">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">📱 Scan to Pay</p>
+                    <img src={qrUrl} alt="Payment QR" className="w-44 h-44 border border-gray-200 rounded-xl p-2 shadow-sm" />
+                  </div>
+                )}
+                <div className="w-full">
+                  <p className="text-xs text-gray-500 mb-1 font-medium">Payment Link</p>
+                  <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                    <span className="text-xs text-gray-600 flex-1 truncate">{paymentLinkUrl}</span>
+                    <button onClick={() => { navigator.clipboard.writeText(paymentLinkUrl); alert("Copied!"); }} className="text-xs text-[#3a6f77] font-bold hover:underline flex-shrink-0">Copy</button>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSendPaymentRequest}
+                  disabled={payNotifLoading}
+                  className={`w-full py-3 rounded-xl text-sm font-bold text-white transition-all ${payNotifLoading ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}`}
+                >
+                  {payNotifLoading ? "⏳ Sending..." : "📤 Send via Email & WhatsApp"}
+                </button>
+                <a href={paymentLinkUrl} target="_blank" rel="noopener noreferrer" className="w-full py-2.5 rounded-xl text-sm font-semibold text-center text-[#3a6f77] border border-[#3a6f77] hover:bg-[#f0f8f9] transition-all">
+                  Open Payment Page ↗
+                </a>
+                <button onClick={() => { setShowPayModal(false); setPaymentLinkUrl(""); setQrUrl(""); }} className="text-xs text-gray-400 hover:text-gray-600">Close</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 
 const Invoicebill = () => {
   return (
