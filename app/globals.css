@@ -23,4 +23,22 @@ body {
   overflow-x: hidden;
 }
 
+.mobile-x-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #2f2f3360 transparent;
+}
+
+.mobile-x-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.mobile-x-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-x-scroll::-webkit-scrollbar-thumb {
+  background: #2f2f3360;
+  border-radius: 9999px;
+}
+
 

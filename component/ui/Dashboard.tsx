@@ -146,22 +146,31 @@ const Dashboard = () => {
       )}
 
       {/* Tabs */}
-      <div className="w-full bg-[#f5f6f7]/80 flex items-center pl-4 sm:pl-8 gap-4 sm:gap-6 py-2 flex-shrink-0 overflow-x-auto">
-        {tabs.map((tab) => (
-          <p
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`text-xs sm:text-sm font-sans font-medium cursor-pointer transition-all duration-150 whitespace-nowrap ${
-              activeTab === tab ? "text-[#D4B483] font-bold" : "text-[#2f2f33] hover:text-[#D4B483]"
-            }`}
-          >
-            {tab}
-          </p>
-        ))}
+      <div
+        className="mobile-x-scroll w-full bg-[#f5f6f7]/80 pl-4 pr-4 sm:pl-8 sm:pr-8 py-2 flex-shrink-0 overflow-x-scroll overflow-y-hidden sm:overflow-x-visible sm:overflow-y-visible"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        <div className="flex items-center gap-4 sm:gap-6 w-max sm:w-full">
+          {tabs.map((tab) => (
+            <p
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`shrink-0 text-xs sm:text-sm font-sans font-medium cursor-pointer transition-all duration-150 whitespace-nowrap ${
+                activeTab === tab ? "text-[#D4B483] font-bold" : "text-[#2f2f33] hover:text-[#D4B483]"
+              }`}
+            >
+              {tab}
+            </p>
+          ))}
+        </div>
       </div>
 
       {/* Stat Cards - horizontal scroll on mobile */}
-      <div className="flex gap-3 sm:gap-4 mt-3 mx-3 flex-shrink-0 overflow-x-auto pb-1">
+      <div
+        className="mobile-x-scroll mt-3 mx-3 flex-shrink-0 overflow-x-scroll overflow-y-hidden pb-1 sm:overflow-x-visible sm:overflow-y-visible"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        <div className="flex w-max sm:w-full gap-3 sm:gap-4">
         {/* Total Revenue */}
         <div className="min-w-[150px] sm:min-w-0 flex-1 bg-[#2f2f33] rounded-xl p-3 sm:p-4">
           <p className="text-xs font-medium font-sans text-[#f5f6f7]/70 pb-1">Total Revenue</p>
@@ -208,6 +217,7 @@ const Dashboard = () => {
           <h3 className="text-xs sm:text-sm font-medium text-red-300 font-serif mt-1">{stats.overdueAmt} at risk</h3>
           <p className="text-xs text-[#f5f6f7]/50 font-sans mt-1">Action required</p>
         </div>
+        </div>
       </div>
 
       {/* Bottom Section — desktop: side by side | mobile: stacked with Recent on top */}
@@ -226,37 +236,44 @@ const Dashboard = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex gap-2 mb-2 flex-shrink-0">
-            {filters.map((f) => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className="px-2 sm:px-3 py-1 text-xs font-sans rounded-md cursor-pointer transition-all duration-150"
-                style={{
-                  border: "1px solid #f5f6f722",
-                  backgroundColor: activeFilter === f ? "#f5f6f7" : "transparent",
-                  color: activeFilter === f ? "#2f2f33" : "#f5f6f7aa",
-                  fontWeight: activeFilter === f ? "bold" : "normal",
-                }}
-              >
-                {f}
-              </button>
-            ))}
+          <div
+            className="mobile-x-scroll mb-2 flex-shrink-0 overflow-x-scroll overflow-y-hidden pb-1 sm:overflow-x-visible sm:overflow-y-visible"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
+            <div className="flex w-max sm:w-full gap-2">
+              {filters.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setActiveFilter(f)}
+                  className="shrink-0 whitespace-nowrap px-2 sm:px-3 py-1 text-xs font-sans rounded-md cursor-pointer transition-all duration-150"
+                  style={{
+                    border: "1px solid #f5f6f722",
+                    backgroundColor: activeFilter === f ? "#f5f6f7" : "transparent",
+                    color: activeFilter === f ? "#2f2f33" : "#f5f6f7aa",
+                    fontWeight: activeFilter === f ? "bold" : "normal",
+                  }}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Table Header */}
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 pb-2 mb-1 flex-shrink-0" style={{ borderBottom: "1px solid #f5f6f722" }}>
-            <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">INVOICE</span>
-            <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">CUSTOMER</span>
-            <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">STATUS</span>
-            <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50 hidden sm:block">AMOUNT</span>
-            <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50 hidden sm:block">DUE DATE</span>
+          <div className="mobile-x-scroll mb-1 flex-shrink-0 overflow-x-scroll overflow-y-hidden pb-1" style={{ WebkitOverflowScrolling: "touch" }}>
+            <div className="grid min-w-[560px] grid-cols-5 gap-2 pb-2" style={{ borderBottom: "1px solid #f5f6f722" }}>
+              <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">INVOICE</span>
+              <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">CUSTOMER</span>
+              <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">STATUS</span>
+              <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">AMOUNT</span>
+              <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">DUE DATE</span>
+            </div>
           </div>
 
           {/* Invoice Rows — scrollable */}
-          <div className="overflow-y-auto flex-1 pr-0.5" style={{ scrollbarWidth: "thin", scrollbarColor: "#3a3a3d transparent" }}>
+          <div className="mobile-x-scroll overflow-auto flex-1 pr-0.5" style={{ scrollbarWidth: "thin", scrollbarColor: "#3a3a3d transparent", WebkitOverflowScrolling: "touch" }}>
             {filteredInvoices.map((inv) => (
-              <div key={inv.id} className="grid grid-cols-3 sm:grid-cols-5 gap-2 py-2 sm:py-2.5 items-center" style={{ borderBottom: "1px solid #f5f6f711" }}>
+              <div key={inv.id} className="grid min-w-[560px] grid-cols-5 gap-2 py-2 sm:py-2.5 items-center" style={{ borderBottom: "1px solid #f5f6f711" }}>
                 <span className="text-xs sm:text-sm font-mono" style={{ color: "#D4B483" }}>{inv.id}</span>
                 <span className="text-xs sm:text-sm font-sans text-[#f5f6f7] truncate">{inv.customer}</span>
                 <span
@@ -266,8 +283,8 @@ const Dashboard = () => {
                   <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: dotColor(inv.status) }}></span>
                   {inv.status}
                 </span>
-                <span className="text-xs sm:text-sm font-sans text-[#f5f6f7] hidden sm:block">{inv.amount}</span>
-                <span className="text-xs sm:text-sm font-sans text-[#f5f6f7]/50 hidden sm:block">{inv.dueDate}</span>
+                <span className="text-xs sm:text-sm font-sans text-[#f5f6f7]">{inv.amount}</span>
+                <span className="text-xs sm:text-sm font-sans text-[#f5f6f7]/50">{inv.dueDate}</span>
               </div>
             ))}
           </div>
