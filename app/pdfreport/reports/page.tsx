@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DollarSign,
   FileText,
@@ -10,6 +10,7 @@ import {
   Eye,
 } from "lucide-react";
 import Link from "next/link";
+import jsPDF from "jspdf";
 
 // ── Report Type for Recent Reports ──
 interface Report {
@@ -23,6 +24,18 @@ interface Report {
   size: string;
   pages: string;
 }
+
+type StoredReport = Omit<Report, "icon"> & {
+  iconKey?: "DollarSign" | "FileText";
+};
+
+const iconFor = (iconKey?: StoredReport["iconKey"]) => {
+  if (iconKey === "FileText") {
+    return <FileText size={16} color="#3a6f77" />;
+  }
+
+  return <DollarSign size={16} color="#D4B483" />;
+};
 
 export default function RecentReportsPage() {
   const [list, setList] = useState<Report[]>([
@@ -115,8 +128,73 @@ export default function RecentReportsPage() {
       pages: "12 pg",
     },
   ]);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
-  const clearAll = () => setList([]);
+  useEffect(() => {
+    const savedReports = window.localStorage.getItem("billingkitaab:recentReports");
+
+    if (!savedReports) {
+      return;
+    }
+
+    try {
+      const parsedReports = JSON.parse(savedReports) as StoredReport[];
+      if (!Array.isArray(parsedReports) || parsedReports.length === 0) {
+        return;
+      }
+
+      setList((current) => {
+        const generated = parsedReports.map((report) => ({
+          ...report,
+          icon: iconFor(report.iconKey),
+        }));
+
+        const dedupedCurrent = current.filter(
+          (report) => !generated.some((item) => item.title === report.title && item.generated === report.generated)
+        );
+
+        return [...generated, ...dedupedCurrent];
+      });
+    } catch {
+      window.localStorage.removeItem("billingkitaab:recentReports");
+    }
+  }, []);
+
+  const clearAll = () => {
+    window.localStorage.removeItem("billingkitaab:recentReports");
+    setList([]);
+  };
+
+  const openPreview = (report: Report) => {
+    setSelectedReport(report);
+  };
+
+  const downloadReport = (report: Report) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    doc.setFontSize(18);
+    doc.text(report.title, 14, 18);
+
+    doc.setFontSize(11);
+    doc.text(`Type: ${report.subtitle}`, 14, 32);
+    doc.text(`Period: ${report.period}`, 14, 40);
+    doc.text(`Generated: ${report.generated}`, 14, 48);
+    doc.text(`Size: ${report.size}`, 14, 56);
+    doc.text(`Pages: ${report.pages}`, 14, 64);
+
+    doc.setFontSize(12);
+    doc.text("Report Summary", 14, 80);
+    doc.setFontSize(10);
+    doc.text(
+      `${report.title} is an invoice-focused report generated from your BillingKitaab dashboard.`,
+      14,
+      90,
+      { maxWidth: pageWidth - 28 }
+    );
+
+    doc.save(`${report.title.replace(/\s+/g, "-")}.pdf`);
+  };
 
   return (
     <div
@@ -125,7 +203,7 @@ export default function RecentReportsPage() {
     >
       {/* ── Header ── */}
       <div
-        className="flex items-center justify-between px-4 sm:px-6 py-4 flex-shrink-0"
+        className="flex items-center justify-between px-4 sm:px-6 py-4 shrink-0"
         style={{ borderBottom: "1px solid #2f2f3318" }}
       >
         <div className="flex items-center gap-3">
@@ -221,7 +299,7 @@ export default function RecentReportsPage() {
                 {/* REPORT — icon + title + subtitle */}
                 <div className="flex items-center gap-3 mb-2 sm:mb-0">
                   <div
-                    className="flex items-center justify-center rounded-lg flex-shrink-0"
+                    className="flex items-center justify-center rounded-lg shrink-0"
                     style={{
                       width: "34px",
                       height: "34px",
@@ -300,12 +378,14 @@ export default function RecentReportsPage() {
                   {/* ACTIONS - Desktop */}
                   <div className="hidden sm:flex items-center gap-2">
                     <button
+                      onClick={() => openPreview(r)}
                       className="p-1.5 rounded-lg transition-all duration-150 hover:bg-white/10"
                       title="Preview"
                     >
                       <Eye size={14} color="#f5f6f7" />
                     </button>
                     <button
+                      onClick={() => downloadReport(r)}
                       className="p-1.5 rounded-lg transition-all duration-150 hover:bg-white/10"
                       title="Download"
                     >
@@ -326,12 +406,14 @@ export default function RecentReportsPage() {
                   {/* ACTIONS - Mobile */}
                   <div className="flex sm:hidden items-center gap-2 mt-2">
                     <button
+                      onClick={() => openPreview(r)}
                       className="flex-1 py-1.5 text-xs font-medium rounded-lg transition-all duration-150"
                       style={{ background: "#D4B48320", color: "#D4B483" }}
                     >
                       Preview
                     </button>
                     <button
+                      onClick={() => downloadReport(r)}
                       className="flex-1 py-1.5 text-xs font-medium rounded-lg transition-all duration-150"
                       style={{ background: "#3a6f7720", color: "#3a6f77" }}
                     >
@@ -354,6 +436,36 @@ export default function RecentReportsPage() {
           )}
         </div>
       </div>
+
+      {selectedReport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setSelectedReport(null)}>
+          <div
+            className="w-full max-w-xl rounded-2xl border border-white/10 bg-[#2f2f33] p-5 text-left shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-[#f5f6f740]">Report Preview</p>
+                <h2 className="mt-1 text-xl font-bold text-[#f5f6f7]">{selectedReport.title}</h2>
+              </div>
+              <button
+                onClick={() => setSelectedReport(null)}
+                className="rounded-lg px-3 py-1.5 text-xs font-bold text-[#f5f6f7] transition-all duration-150 hover:bg-white/10"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="mt-4 grid gap-3 text-sm text-[#f5f6f7]">
+              <p><span className="text-[#f5f6f740]">Type:</span> {selectedReport.subtitle}</p>
+              <p><span className="text-[#f5f6f740]">Period:</span> {selectedReport.period}</p>
+              <p><span className="text-[#f5f6f740]">Generated:</span> {selectedReport.generated}</p>
+              <p><span className="text-[#f5f6f740]">Size:</span> {selectedReport.size}</p>
+              <p><span className="text-[#f5f6f740]">Pages:</span> {selectedReport.pages}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
