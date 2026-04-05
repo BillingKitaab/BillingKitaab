@@ -127,24 +127,24 @@ const Inventoryshow = () => {
               </p>
             </div>
 
-            <Link
-              href='/inventory/add-product'
-              className='rounded-lg bg-[#3a6f77] px-4 py-2.5 text-sm font-bold text-[#f5f6f7] transition-colors hover:bg-[#2f2f33]'
-            >
-              Add Product
-            </Link>
-          </div>
+            <div className='flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto'>
+              <div className='relative w-full sm:w-80'>
+                <FaSearch className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[#f5f6f7]/50' />
+                <input
+                  type='text'
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder='Search product, SKU, category'
+                  className='w-full rounded-md border border-[#2f2f33]/10 bg-[#2f2f33] py-2 pl-9 pr-3 text-sm text-[#f5f6f7] outline-none focus:border-[#D4B483]'
+                />
+              </div>
 
-          <div className='mt-4'>
-            <div className='relative w-full sm:max-w-sm'>
-              <FaSearch className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[#2f2f33]/50' />
-              <input
-                type='text'
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder='Search product, SKU, category'
-                className='w-full rounded-lg border border-[#2f2f33]/20 bg-[#f5f6f7] py-2 pl-9 pr-3 text-sm text-[#2f2f33] outline-none focus:border-[#3a6f77]'
-              />
+              <Link
+                href='/inventory/add-product'
+                className='rounded-lg bg-[#3a6f77] px-4 py-2.5 text-sm font-bold text-[#f5f6f7] transition-colors hover:bg-[#2f2f33] shrink-0'
+              >
+                Add Product
+              </Link>
             </div>
           </div>
 

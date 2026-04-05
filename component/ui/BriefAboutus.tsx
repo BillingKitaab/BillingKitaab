@@ -4,7 +4,7 @@ import { FileText, Users, BarChart3, Gift } from 'lucide-react'
 
 const BriefAboutus = () => {
   return (
-    <div className='w-full bg-gradient-to-br from-[#f5f6f7] via-[#D4B483]/20 to-[#3a6f77]/30 relative overflow-x-hidden py-8 sm:py-12 md:py-16'>
+    <div className='w-full bg-gradient-to-br from-[#f5f6f7] via-[#D4B483]/15 to-[#3a6f77]/20 relative overflow-x-hidden py-8 sm:py-12 md:py-16'>
       {/* Top Heading */}
       <div className='w-full px-4 mb-12 mt-15 sm:mt-9'>
         <h1 className='text-2xl sm:text-3xl md:text-4xl lg:text-3xl font-serif font-bold text-[#2f2f33] text-center leading-tight max-w-4xl mx-auto'>
@@ -65,13 +65,13 @@ const BriefAboutus = () => {
           <div className='space-y-2'>
             <h2 className='text-xl sm:text-2xl md:text-2xl font-serif font-bold text-[#2f2f33]'>How It Helps Your Business</h2>
             <div className='space-y-2'>
-              <div className='bg-[#2f2f33]/5 backdrop-blur-sm border border-[#3a6f77]/20 rounded-lg p-3'>
+              <div className='bg-[#2f2f33]/5 backdrop-blur-sm border border-[#3a6f77]/15 rounded-lg p-3'>
                 <p className='text-xs sm:text-sm text-[#2f2f33]'><span className='font-bold text-[#D4B483]'>Save Time</span> – No more handwritten receipts or calculation errors.</p>
               </div>
-              <div className='bg-[#3a6f77]/5 backdrop-blur-sm border border-[#D4B483]/20 rounded-lg p-3'>
+              <div className='bg-[#3a6f77]/5 backdrop-blur-sm border border-[#D4B483]/15 rounded-lg p-3'>
                 <p className='text-xs sm:text-sm text-[#2f2f33]'><span className='font-bold text-[#3a6f77]'>Boost Sales</span> – Faster billing means serving more customers efficiently.</p>
               </div>
-              <div className='bg-[#2f2f33]/5 backdrop-blur-sm border border-[#3a6f77]/20 rounded-lg p-3'>
+              <div className='bg-[#2f2f33]/5 backdrop-blur-sm border border-[#3a6f77]/15 rounded-lg p-3'>
                 <p className='text-xs sm:text-sm text-[#2f2f33]'><span className='font-bold text-[#D4B483]'>Grow Professionally</span> – Present your shop as modern, reliable, and customer‑friendly.</p>
               </div>
             </div>
@@ -82,22 +82,22 @@ const BriefAboutus = () => {
         <div className='flex flex-col items-center justify-center lg:order-1'>
           <img src='/logo/contactus.png' alt='Billing Kitaab' className='w-full max-w-xs sm:max-w-sm md:max-w-md h-auto rounded-2xl mb-6' />
           <div className='w-full grid grid-cols-2 gap-2 sm:gap-3 md:gap-4'>
-            <div className='bg-gradient-to-br from-[#D4B483] to-[#D4B483]/80 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 text-white flex flex-col items-center'>
+            <div className='bg-gradient-to-br from-[#D4B483] to-[#D4B483]/85 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 text-white flex flex-col items-center'>
               <FileText size={24} className='mb-2 sm:mb-3' />
               <p className='text-xs sm:text-xs md:text-sm font-semibold mb-1'>Invoice</p>
               <p className='text-xs sm:text-sm font-bold text-center'>Billing</p>
             </div>
-            <div className='bg-gradient-to-br from-[#3a6f77] to-[#3a6f77]/80 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 text-white flex flex-col items-center'>
+            <div className='bg-gradient-to-br from-[#3a6f77] to-[#3a6f77]/85 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 text-white flex flex-col items-center'>
               <Users size={24} className='mb-2 sm:mb-3' />
               <p className='text-xs sm:text-xs md:text-sm font-semibold mb-1'>Customer</p>
               <p className='text-xs sm:text-sm font-bold text-center'>Trust</p>
             </div>
-            <div className='bg-gradient-to-br from-[#2f2f33] to-[#2f2f33]/80 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 text-white flex flex-col items-center'>
+            <div className='bg-gradient-to-br from-[#2f2f33] to-[#2f2f33]/85 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 text-white flex flex-col items-center'>
               <BarChart3 size={24} className='mb-2 sm:mb-3' />
               <p className='text-xs sm:text-xs md:text-sm font-semibold mb-1'>Analytics</p>
               <p className='text-xs sm:text-sm font-bold text-center'>Insights</p>
             </div>
-            <div className='bg-gradient-to-br from-[#f5f6f7] border-2 border-[#3a6f77] rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 flex flex-col items-center'>
+            <div className='bg-gradient-to-br from-[#f5f6f7] border-2 border-[#3a6f77]/40 rounded-lg sm:rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 flex flex-col items-center'>
               <Gift size={24} className='mb-2 sm:mb-3 text-[#3a6f77]' />
               <p className='text-xs sm:text-xs md:text-sm font-semibold text-[#3a6f77] mb-1'>Easy</p>
               <p className='text-xs sm:text-sm font-bold text-[#2f2f33] text-center'>Free</p>

@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+:root {
+  --bk-gold: #D4B483;
+  --bk-teal: #3a6f77;
+  --bk-ink: #2f2f33;
+  --bk-cream: #f5f6f7;
+}
+
 /* scroll‑reveal helper */
 .reveal {
   opacity: 0;
@@ -21,11 +28,13 @@ body {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
+  background: var(--bk-cream);
+  color: var(--bk-ink);
 }
 
 .mobile-x-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #2f2f3360 transparent;
+  scrollbar-color: rgba(47, 47, 51, 0.4) transparent;
 }
 
 .mobile-x-scroll::-webkit-scrollbar {
@@ -37,7 +46,7 @@ body {
 }
 
 .mobile-x-scroll::-webkit-scrollbar-thumb {
-  background: #2f2f3360;
+  background: rgba(47, 47, 51, 0.4);
   border-radius: 9999px;
 }
 

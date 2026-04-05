@@ -106,8 +106,8 @@ export default function SmartBillingHero() {
       {/* ── HERO ── */}
       <section className="hero-content relative z-10 flex flex-col items-center justify-center text-center min-h-screen px-4 md:px-10 pt-16 pb-20">
         {/* Eyebrow pill */}
-        <div className="fade-0 inline-flex items-center gap-2 bg-white border rounded-full px-3 py-1.5 mb-5 md:mb-7 text-xs font-medium"
-          style={{ borderColor: "rgba(201,169,110,0.3)", color: TEAL, letterSpacing: "0.5px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
+        <div className="fade-0 inline-flex items-center gap-2 bg-white border rounded-lg px-3 py-1.5 mb-5 md:mb-7 text-xs font-medium"
+          style={{ borderColor: "rgba(201,169,110,0.3)", color: TEAL, letterSpacing: "0.5px" }}>
           <span className="rounded-full inline-block" style={{ width: 6, height: 6, background: GOLD }} />
           <span className="whitespace-nowrap">BillingKitaab · Built for Modern India</span>
         </div>
@@ -133,7 +133,7 @@ export default function SmartBillingHero() {
         <div className="fade-5 flex flex-col sm:flex-row gap-3 md:gap-4 items-center w-full max-w-md">
     <button
       onClick={handleClick}
-      className="cta-primary-btn w-full sm:w-auto px-6 md:px-9 py-3 md:py-4 rounded-xl text-sm font-semibold text-white cursor-pointer border-none"
+      className="cta-primary-btn w-full sm:w-[240px] h-[52px] md:h-[56px] px-6 md:px-9 rounded-xl text-sm font-semibold text-white cursor-pointer border-none"
       style={{
         background: `linear-gradient(135deg, ${GOLD}, #B8914A)`,
         boxShadow: "0 8px 30px rgba(201,169,110,0.4)",
@@ -144,7 +144,7 @@ export default function SmartBillingHero() {
       Start Free Now
     </button>
 
-          <button className="cta-secondary-btn flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 border rounded-xl text-sm font-medium cursor-pointer bg-white transition-all duration-200"
+          <button className="cta-secondary-btn flex items-center justify-center gap-2.5 w-full sm:w-[240px] h-[52px] md:h-[56px] px-6 md:px-8 border rounded-xl text-sm font-semibold cursor-pointer bg-white transition-all duration-200"
             style={{ borderColor: "rgba(201,169,110,0.35)", color: DARK, fontFamily: "'DM Sans', sans-serif" }}>
             <span className="rounded-full flex items-center justify-center" style={{ width: 28, height: 28, background: TEAL }}>
               <svg width="10" height="12" viewBox="0 0 10 12" fill="white"><polygon points="0,0 10,6 0,12"/></svg>
