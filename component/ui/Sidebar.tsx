@@ -119,7 +119,6 @@ export default function Sidebar() {
     await supabase.auth.signOut();
     router.push("/signup");
   };
-
   const SidebarContent = () => (
     <div className="flex flex-col min-h-full w-full md:h-screen md:w-60 px-3 py-5 bg-[#2f2f33]">
       {/* Logout Confirmation Modal */}
@@ -232,7 +231,7 @@ export default function Sidebar() {
         </div>
 
         <span className="text-sm flex-1 text-[#f5f6f7]">
-          {user?.business_name || "User"}
+          {user?.business_name}
         </span>
 
         <button
