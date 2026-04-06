@@ -68,7 +68,18 @@ export default function SmartBillingHero() {
         @media (max-width: 768px) {
           .hide-mobile { display: none !important; }
           .trust-strip { flex-wrap: wrap !important; gap: 16px !important; justify-content: center !important; }
-          .hero-content { padding-left: 20px !important; padding-right: 20px !important; }
+          .hero-content {
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+            padding-top: 6rem !important;
+            min-height: auto !important;
+          }
+          .hero-eyebrow { margin-bottom: 14px !important; }
+          .hero-tagline { font-size: 0.95rem !important; letter-spacing: 0.4px !important; }
+          .hero-title { font-size: clamp(2.1rem, 11vw, 3.4rem) !important; line-height: 1.06 !important; }
+          .hero-subtitle { font-size: clamp(1.8rem, 9vw, 3rem) !important; line-height: 1.1 !important; }
+          .hero-copy { max-width: 32rem !important; font-size: 0.95rem !important; line-height: 1.65 !important; margin-bottom: 1.75rem !important; }
+          .hero-actions { max-width: 100% !important; }
         }
       `}</style>
 
@@ -104,33 +115,33 @@ export default function SmartBillingHero() {
       </div>
 
       {/* ── HERO ── */}
-      <section className="hero-content relative z-10 flex flex-col items-center justify-center text-center min-h-screen px-4 md:px-10 pt-16 pb-20">
+      <section className="hero-content relative z-10 flex flex-col items-center justify-center text-center min-h-screen px-4 md:px-10 pt-24 md:pt-28 pb-16">
         {/* Eyebrow pill */}
-        <div className="fade-0 inline-flex items-center gap-2 bg-white border rounded-lg px-3 py-1.5 mb-5 md:mb-7 text-xs font-medium"
+        <div className="hero-eyebrow fade-0 inline-flex items-center gap-2 bg-white border rounded-lg px-3 py-1.5 mb-5 md:mb-7 text-xs font-medium"
           style={{ borderColor: "rgba(201,169,110,0.3)", color: TEAL, letterSpacing: "0.5px" }}>
           <span className="rounded-full inline-block" style={{ width: 6, height: 6, background: GOLD }} />
           <span className="whitespace-nowrap">BillingKitaab · Built for Modern India</span>
         </div>
 
-        <p className="fade-1 dm-sans text-base md:text-lg font-medium mb-3" style={{ color: TEAL, letterSpacing: "1px" }}>
+        <p className="hero-tagline fade-1 dm-sans text-base md:text-lg font-medium mb-3" style={{ color: TEAL, letterSpacing: "1px" }}>
           India’s Smart {" "}
           <span style={{ color: GOLD, textDecoration: "underline", textDecorationColor: "rgba(201,169,110,0.4)" }}>Billing Platform</span>{" "}
         </p>
 
-        <h1 className="fade-2 playfair font-black mb-3 md:mb-1.5" style={{ fontSize: "clamp(32px,6vw,72px)", lineHeight: 1.1, color: GOLD }}>
+        <h1 className="hero-title fade-2 playfair font-black mb-3 md:mb-1.5" style={{ fontSize: "clamp(32px,6vw,72px)", lineHeight: 1.1, color: GOLD }}>
           From invoice to income simplified.
         </h1>
 
-        <h2 className="fade-3 playfair font-bold mb-5 md:mb-7" style={{ fontSize: "clamp(26px,5vw,62px)", lineHeight: 1.15, color: DARK }}>
+        <h2 className="hero-subtitle fade-3 playfair font-bold mb-5 md:mb-7" style={{ fontSize: "clamp(26px,5vw,62px)", lineHeight: 1.15, color: DARK }}>
           Manage your <span style={{ color: TEAL }}>billing</span> the smart way.
         </h2>
 
-        <p className="fade-4 text-sm md:text-base max-w-lg mb-8 md:mb-10 leading-relaxed" style={{ color: "#888" }}>
+        <p className="hero-copy fade-4 text-sm md:text-base max-w-lg mb-8 md:mb-10 leading-relaxed" style={{ color: "#888" }}>
           Create polished invoices, Automate client reminders,<br className="hidden md:block" />
           Collect payments faster — from one intelligent, beautifully designed dashboard.
         </p>
 
-        <div className="fade-5 flex flex-col sm:flex-row gap-3 md:gap-4 items-center w-full max-w-md">
+        <div className="hero-actions fade-5 flex flex-col sm:flex-row gap-3 md:gap-4 items-center w-full max-w-md">
     <button
       onClick={handleClick}
       className="cta-primary-btn w-full sm:w-[240px] h-[52px] md:h-[56px] px-6 md:px-9 rounded-xl text-sm font-semibold text-white cursor-pointer border-none"

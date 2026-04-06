@@ -79,7 +79,23 @@ const boxes = [
 
 const Services = () => {
   return (
-    <div id="services" className="min-h-screen w-full bg-gradient-to-b from-[#f5f6f7] via-[#f5f6f7] to-[#2f2f33]/20">
+    <div id="services" className="min-h-screen w-full bg-linear-to-b from-[#f5f6f7] via-[#f5f6f7] to-[#2f2f33]/20">
+      <style>{`
+        @media (min-width: 1240px) and (max-width: 1290px) and (min-height: 580px) and (max-height: 610px) {
+          .services-heading-wrap {
+            padding-top: 0.75rem !important;
+            padding-bottom: 0.75rem !important;
+          }
+
+          .services-heading-text {
+            max-width: 760px !important;
+          }
+
+          .services-cards-wrap {
+            padding-top: 0.75rem !important;
+          }
+        }
+      `}</style>
 
       {/* Heading */}
       <motion.div
@@ -87,10 +103,10 @@ const Services = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.4, ease: "easeIn" }}
-        className="w-full px-6 sm:px-10 pt-10 pb-6 md:pt-0 md:pb-0 md:h-[20vh] md:w-[50vw] md:ml-10 flex items-end"
+        className="services-heading-wrap w-full px-6 sm:px-10 pt-10 pb-6 md:pt-12 md:pb-8 flex items-start"
       >
         <h1
-          className="text-3xl sm:text-4xl md:text-5xl md:ml-3 text-[#2f2f33] font-bold leading-tight"
+          className="services-heading-text text-3xl sm:text-4xl md:text-5xl text-[#2f2f33] font-bold leading-tight max-w-4xl"
           style={{ fontFamily: "'Georgia', serif" }}
         >
           Everything your{" "}
@@ -100,7 +116,7 @@ const Services = () => {
       </motion.div>
 
       {/* Boxes */}
-      <div className="w-full px-6 sm:px-10 py-6 flex items-center justify-center min-h-[75vh]">
+      <div className="services-cards-wrap w-full px-6 sm:px-10 py-6 flex items-start justify-start min-h-[75vh]">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[95%] h-full">
           {boxes.map((box, i) => (
             <motion.div
@@ -110,7 +126,7 @@ const Services = () => {
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.2, ease: "easeOut", delay: i * 0.01 }}
               whileHover={{ scale: 1.08 }}
-              className="rounded-xl p-5 flex flex-col justify-between shadow-sm min-h-[160px] cursor-pointer"
+              className="rounded-xl p-5 flex flex-col justify-between shadow-sm min-h-40 cursor-pointer"
               style={{ backgroundColor: box.bg }}
             >
               <div className="flex items-center justify-between">

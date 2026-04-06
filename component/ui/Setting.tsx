@@ -2,20 +2,24 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { FaPhone, FaEnvelope, FaBuilding, FaHome, FaPen, FaUpload, FaUser, FaLink } from "react-icons/fa";
+import { FaPhone, FaEnvelope, FaBuilding, FaHome, FaPen, FaUpload, FaUser, FaLink, FaSignOutAlt } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import SignatureCanvas from "react-signature-canvas";
 
 const Setting = () => {
+  const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
   const [businessLogoPreview, setBusinessLogoPreview] = useState<string>('');
   const [sigMode, setSigMode] = useState<'draw' | 'upload'>('draw');
+  const [viewMode, setViewMode] = useState(false);
   const sigCanvasRef = React.useRef<SignatureCanvas>(null);
 
   const [initialValues, setInitialValues] = useState({
@@ -70,6 +74,8 @@ const Setting = () => {
           signatureImage: null,
           signatureUrl: data.signature_url || "",
         });
+        // Auto-show summary page when data exists
+        setViewMode(true);
       }
 
       const savedLogo = localStorage.getItem('businessLogo');
@@ -175,6 +181,7 @@ const Setting = () => {
       }
 
       setShowSuccess(true);
+      setViewMode(true);
       setTimeout(() => setShowSuccess(false), 2500);
     },
   });
@@ -227,9 +234,15 @@ const Setting = () => {
 
       setHasProfile(true);
       setShowSuccess(true);
+      setViewMode(true);
       setTimeout(() => setShowSuccess(false), 2500);
     },
   });
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
 
   return (
     <div className="h-dvh w-full flex flex-col overflow-hidden">
@@ -293,6 +306,67 @@ const Setting = () => {
             </motion.div>
           </motion.div>
         )}
+        {showLogoutConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 280, damping: 22 }}
+              className="bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-6 max-w-sm"
+            >
+              <div className="text-4xl text-[#3a6f77]">
+                ⚠️
+              </div>
+
+              <div className="text-center">
+                <motion.h3
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-gray-800 font-bold text-lg mb-2"
+                >
+                  Confirm Logout
+                </motion.h3>
+                <motion.p
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-gray-600 text-sm"
+                >
+                  Are you sure you want to logout? You'll need to sign in again to access your account.
+                </motion.p>
+              </div>
+
+              <div className="flex gap-3 w-full">
+                <motion.button
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all cursor-pointer"
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 }}
+                  onClick={handleLogout}
+                  className="flex-1 px-4 py-2.5 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-all cursor-pointer"
+                >
+                  Logout
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* Header */}
@@ -310,16 +384,40 @@ const Setting = () => {
       
           
 
-          <button className="px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold bg-[#D4B483] text-[#2f2f33] rounded-lg hover:bg-[#c9a86c] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap">
-            Discard
-          </button>
-          <button
-            type="submit"
-            form="businessForm"
-            className="px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold border border-[#3a6f77] text-[#3a6f77] rounded-lg hover:bg-[#3a6f77] hover:text-[#f5f6f7] transition-all duration-200 cursor-pointer hover:-translate-y-0.5 whitespace-nowrap"
-          >
-            Save Changes
-          </button>
+          {!viewMode && (
+            <button 
+              type="button"
+              onClick={() => {
+                formik.resetForm();
+                profileFormik.resetForm();
+                setViewMode(true);
+              }}
+              className="px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold bg-[#D4B483] text-[#2f2f33] rounded-lg hover:bg-[#c9a86c] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap">
+              Discard
+            </button>
+          )}
+          {!viewMode && (
+            <button
+              type="submit"
+              form="businessForm"
+              className="px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold border border-[#3a6f77] text-[#3a6f77] rounded-lg hover:bg-[#3a6f77] hover:text-[#f5f6f7] transition-all duration-200 cursor-pointer hover:-translate-y-0.5 whitespace-nowrap"
+            >
+              Save Changes
+            </button>
+          )}
+          {viewMode && (
+            <button
+              type="button"
+              onClick={() => {
+                formik.resetForm();
+                profileFormik.resetForm();
+                setViewMode(false);
+              }}
+              className="px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold border border-[#3a6f77] text-[#3a6f77] rounded-lg hover:bg-[#3a6f77] hover:text-[#f5f6f7] transition-all duration-200 cursor-pointer hover:-translate-y-0.5 whitespace-nowrap"
+            >
+              Edit
+            </button>
+          )}
         </div>
       </div>
 
@@ -331,8 +429,131 @@ const Setting = () => {
         </p>
       </div>
 
-      {/* Business Info Form */}
+      {/* Content Area - View Mode or Edit Mode */}
       <div className="flex-1 min-h-0 px-3 sm:px-8 py-4 bg-gray-100 flex items-start justify-center overflow-y-auto">
+        {viewMode ? (
+          // VIEW MODE - Summary of Saved Details
+          <div className="w-full max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white shadow-md rounded-lg p-6"
+            >
+              <div className="text-center mb-8">
+                <div className="h-20 w-20 mx-auto mb-4 overflow-hidden rounded-2xl border-4 border-[#D4B483] bg-white flex items-center justify-center">
+                  {businessLogoPreview ? (
+                    <img
+                      src={businessLogoPreview}
+                      alt="Business Logo"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-3xl font-bold text-[#3a6f77]">
+                      {formik.values.businessName ? formik.values.businessName.charAt(0).toUpperCase() : 'B'}
+                    </span>
+                  )}
+                </div>
+                <h2 className="text-3xl font-bold text-[#2f2f33] mb-2">{formik.values.businessName}</h2>
+                <p className="text-sm text-[#2f2f33]/70">{formik.values.businessEmail}</p>
+              </div>
+
+              {/* Business Details Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* Left Column */}
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Business Address</p>
+                    <p className="text-sm text-[#2f2f33] whitespace-pre-wrap">{formik.values.businessAddress}</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Phone</p>
+                    <div className="flex items-center gap-2">
+                      <FaPhone className="text-[#3a6f77]" />
+                      <p className="text-sm text-[#2f2f33]">{formik.values.businessPhone}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Email</p>
+                    <div className="flex items-center gap-2">
+                      <FaEnvelope className="text-[#3a6f77]" />
+                      <p className="text-sm text-[#2f2f33]">{formik.values.businessEmail}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">GST Number</p>
+                    <p className="text-sm text-[#2f2f33] font-mono">{formik.values.gstNumber}</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Currency</p>
+                    <p className="text-sm text-[#2f2f33]">{formik.values.defaultCurrency}</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Signature</p>
+                    {formik.values.signatureUrl ? (
+                      <img src={formik.values.signatureUrl} alt="Signature" className="h-12 object-contain" />
+                    ) : (
+                      <p className="text-xs text-gray-400 italic">No signature added</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Profile Section */}
+              {hasProfile && (
+                <div className="border-t border-gray-200 pt-8 mt-8">
+                  <h3 className="text-xl font-bold text-[#2f2f33] mb-6">Profile Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Name</p>
+                      <p className="text-sm text-[#2f2f33]">{profileFormik.values.name}</p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Email</p>
+                      <p className="text-sm text-[#2f2f33]">{profileFormik.values.email}</p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Phone</p>
+                      <p className="text-sm text-[#2f2f33]">{profileFormik.values.phone}</p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Social Media</p>
+                      <a href={profileFormik.values.social} target="_blank" rel="noopener noreferrer" className="text-sm text-[#3a6f77] hover:underline break-all">
+                        {profileFormik.values.social}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-8 text-center">
+                <button
+                  onClick={() => {
+                    formik.resetForm();
+                    profileFormik.resetForm();
+                    setViewMode(false);
+                  }}
+                  className="px-6 py-3 bg-[#3a6f77] text-white font-bold rounded-lg hover:bg-[#2c5359] transition-all duration-200 hover:-translate-y-0.5"
+                >
+                  Edit Details
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        ) : (
+          // EDIT MODE - Form
+          
         <div className="w-full max-w-4xl p-4 sm:p-6 bg-white shadow-md rounded-lg">
           <div className="mb-6 rounded-2xl border border-[#D4B483]/40 bg-[#f5f6f7] p-4 sm:p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -682,7 +903,23 @@ const Setting = () => {
               </form>
             )}
           </div>
+
+          {/* Logout Section */}
+          <div className="mt-12 pt-8 border-t border-gray-200 bg-white rounded-lg p-6 max-w-4xl mx-auto w-full">
+            <h2 className="text-lg font-bold text-[#2f2f33] mb-2">Account</h2>
+            <p className="text-sm text-[#2f2f33]/70 mb-6">
+              Sign out of your account and secure your session.
+            </p>
+            <button
+              onClick={() => setShowLogoutConfirm(true)}
+              className="px-6 py-2.5 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5"
+            >
+              <FaSignOutAlt size={16} />
+              Logout
+            </button>
+          </div>
         </div>
+        )}
       </div>
     </div>
   );
