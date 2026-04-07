@@ -103,7 +103,7 @@ const Services = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.4, ease: "easeIn" }}
-        className="services-heading-wrap w-full px-6 sm:px-10 pt-10 pb-6 md:pt-12 md:pb-8 flex items-start"
+        className="services-heading-wrap w-full max-w-[95%] mx-auto px-6 sm:px-10 pt-10 pb-6 md:pt-12 md:pb-8 flex items-start"
       >
         <h1
           className="services-heading-text text-3xl sm:text-4xl md:text-5xl text-[#2f2f33] font-bold leading-tight max-w-4xl"
@@ -116,7 +116,7 @@ const Services = () => {
       </motion.div>
 
       {/* Boxes */}
-      <div className="services-cards-wrap w-full px-6 sm:px-10 py-6 flex items-start justify-start min-h-[75vh]">
+      <div className="services-cards-wrap w-full px-6 sm:px-10 py-6 flex items-start justify-center min-h-[75vh]">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[95%] h-full">
           {boxes.map((box, i) => (
             <motion.div

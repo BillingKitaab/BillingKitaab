@@ -80,9 +80,9 @@ const Features = () => {
   return (
     <div className='w-full min-h-screen bg-gradient-to-br from-[#f5f6f7] via-[#D4B483]/20 to-[#3a6f77]/30 px-4 pt-28 pb-10 sm:px-6 sm:pt-32 md:px-10 md:pt-36 lg:px-14'>
       <div className='max-w-7xl mx-auto'>
-        <div className='text-center mb-8 sm:mb-10'>
-          <h1 className='mx-auto max-w-4xl text-3xl sm:text-4xl lg:text-5xl font-serif font-bold leading-tight text-[#2f2f33]'>Powerful Features for Modern Businesses</h1>
-          <p className='mt-3 text-sm sm:text-base text-[#2f2f33]/80 max-w-3xl mx-auto leading-relaxed'>Everything you need to manage billing, inventory, and business growth from one smart dashboard.</p>
+        <div className='text-left mb-8 sm:mb-10'>
+          <h1 className='max-w-4xl text-3xl sm:text-4xl lg:text-5xl font-serif font-bold leading-tight text-[#2f2f33]'>Powerful Features for Modern Businesses</h1>
+          <p className='mt-3 text-sm sm:text-base text-[#2f2f33]/80 max-w-3xl leading-relaxed'>Everything you need to manage billing, inventory, and business growth from one smart dashboard.</p>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6'>

@@ -361,8 +361,8 @@ const Customer = () => {
           </div>
 
           <div className="flex-1 min-h-0 mx-3 my-3 bg-[#2f2f33] rounded-xl flex flex-col overflow-hidden">
-            <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr] gap-x-3 px-5 py-3 shrink-0 border-b border-[#f5f6f7]/10">
-              {['CUSTOMER', 'EMAIL', 'PHONE', 'CITY', 'REVENUE', 'STATUS'].map((h, i) => (
+            <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr_40px] gap-x-3 px-5 py-3 shrink-0 border-b border-[#f5f6f7]/10">
+              {['CUSTOMER', 'EMAIL', 'PHONE', 'CITY', 'REVENUE', 'STATUS', ''].map((h, i) => (
                 <span key={i} className="text-[10px] font-semibold text-[#f5f6f7]/40 uppercase tracking-widest">{h}</span>
               ))}
             </div>
@@ -383,7 +383,7 @@ const Customer = () => {
                     onClick={() => setSelectedCustomer(selectedCustomer?.id === cust.id ? null : cust)}
                     className={`border-b border-[#f5f6f7]/[0.07] transition-colors duration-150 cursor-pointer ${selectedCustomer?.id === cust.id ? 'bg-[#f5f6f7]/10' : 'hover:bg-[#f5f6f7]/5'}`}
                   >
-                    <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr] gap-x-3 px-5 py-3.5 items-center">
+                    <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr_40px] gap-x-3 px-5 py-3.5 items-center">
                       <span className="text-sm text-[#f5f6f7] font-medium truncate">{cust.name}</span>
                       <span className="text-sm text-[#f5f6f7]/60 truncate">{cust.email}</span>
                       <span className="text-sm text-[#f5f6f7]/60 truncate">{cust.phone}</span>
@@ -396,9 +396,21 @@ const Customer = () => {
                         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotClass(cust.status)}`}></span>
                         {cust.status}
                       </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCustomer(cust);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-red-400/40 text-red-300 transition-colors hover:bg-red-500/10 hover:text-red-200"
+                        aria-label="Delete customer"
+                        title="Delete customer"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
 
-                    <div className="grid grid-cols-[1fr_1fr_80px] sm:hidden gap-x-3 px-4 py-3 items-center">
+                    <div className="grid grid-cols-[1fr_1fr_80px_32px] sm:hidden gap-x-3 px-4 py-3 items-center">
                       <div className="flex flex-col min-w-0">
                         <span className="text-xs text-[#f5f6f7] font-medium truncate">{cust.name}</span>
                         <span className="text-[10px] text-[#f5f6f7]/45 truncate">{cust.city}</span>
@@ -414,6 +426,18 @@ const Customer = () => {
                         </span>
                         <span className="text-[10px] text-[#f5f6f7]/50">{cust.revenue}</span>
                       </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCustomer(cust);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-red-400/40 text-red-300 transition-colors hover:bg-red-500/10 hover:text-red-200"
+                        aria-label="Delete customer"
+                        title="Delete customer"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </div>
                 ))

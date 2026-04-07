@@ -269,11 +269,23 @@ const dotColor = (status: string) => {
             <button
               key={f.label}
               onClick={() => setActiveFilter(f.label)}
-              className="px-3 py-1 rounded-md text-sm font-medium transition-all duration-150 cursor-pointer"
-              style={{
-                backgroundColor: activeFilter === f.label ? "#D4B483" : "#2f2f33",
-                color: activeFilter === f.label ? "#2f2f33" : "#f5f6f7",
-              }}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-all duration-150 cursor-pointer border ${activeFilter === f.label ? (
+                f.label === "All"
+                  ? "bg-[#D4B483] text-[#2f2f33] border-transparent"
+                  : f.label === "Paid"
+                    ? "bg-[#3a6f77] text-[#f5f6f7] border-transparent"
+                    : f.label === "Pending"
+                      ? "bg-[#D4B483] text-[#2f2f33] border-transparent"
+                      : "bg-[#2f2f33] text-[#f5f6f7] border-transparent"
+              ) : (
+                f.label === "All"
+                  ? "bg-transparent text-[#D4B483] border-[#D4B483]"
+                  : f.label === "Paid"
+                    ? "bg-transparent text-[#3a6f77] border-[#3a6f77]"
+                    : f.label === "Pending"
+                      ? "bg-transparent text-[#D4B483] border-[#D4B483]"
+                      : "bg-transparent text-[#2f2f33]/70 border-[#2f2f33]/40"
+              )}`}
             >
               {f.label} {f.count}
             </button>

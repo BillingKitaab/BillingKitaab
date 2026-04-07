@@ -126,10 +126,14 @@ const Settingsidebar = () => {
       {/* Mobile hamburger button */}
       {!isOpen && (
         <button
-          className="fixed top-[146px] left-4 z-30 md:hidden bg-[#f5f6f7] text-[#2f2f33] p-2 rounded-md shadow-md"
+          className="fixed top-[calc(6rem+2.5vh-1ch)] right-4 z-40 md:hidden bg-[#f5f6f7] text-[#2f2f33] p-1.5 rounded-md shadow-md"
           onClick={() => setIsOpen(true)}
+          aria-label="Open settings menu"
         >
-          <FaBars size={18} />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="5" y1="9" x2="19" y2="9" />
+            <line x1="5" y1="15" x2="19" y2="15" />
+          </svg>
         </button>
       )}
 

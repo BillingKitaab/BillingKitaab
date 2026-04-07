@@ -43,7 +43,7 @@ const Navbar = () => {
       />
 
       {/* Center nav links */}
-      <div className="hidden sm:flex items-center ml-[10vh] gap-6 sm:gap-10">
+      <div className="hidden sm:flex flex-1 items-center justify-center gap-6 sm:gap-10">
         <p
           onClick={(e) => {
             e.preventDefault();

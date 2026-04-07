@@ -71,6 +71,7 @@ export default function Sidebar() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const router   = useRouter();
   const pathname = usePathname();
+  const isSettingsRoute = pathname?.startsWith('/settings');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -260,13 +261,15 @@ export default function Sidebar() {
               <span className="text-[#2f2f33]">Billing</span>
               <span className="text-[#3a6f77]">Kitaab</span>
             </p>
-            <button
-              onClick={() => setIsOpen((prev) => !prev)}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-[#3a6f77]/35 bg-[#f5f6f7] text-[#2f2f33]"
-              aria-label="Toggle menu"
-            >
-              {isOpen ? <CloseIcon /> : <MenuIcon />}
-            </button>
+            {!isSettingsRoute && (
+              <button
+                onClick={() => setIsOpen((prev) => !prev)}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#3a6f77]/35 bg-[#f5f6f7] text-[#2f2f33]"
+                aria-label="Toggle menu"
+              >
+                {isOpen ? <CloseIcon /> : <MenuIcon />}
+              </button>
+            )}
           </div>
         </div>
       </div>

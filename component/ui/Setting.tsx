@@ -380,7 +380,7 @@ const Setting = () => {
           </p>
         </div>
 
-        <div className="flex gap-2 shrink-0 ml-2">
+        <div className="flex gap-2 shrink-0 ml-2 pr-12 md:pr-0">
       
           
 
@@ -433,15 +433,15 @@ const Setting = () => {
       <div className="flex-1 min-h-0 px-3 sm:px-8 py-4 bg-gray-100 flex items-start justify-center overflow-y-auto">
         {viewMode ? (
           // VIEW MODE - Summary of Saved Details
-          <div className="w-full max-w-4xl">
+          <div className="w-full max-w-5xl">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-white shadow-md rounded-lg p-6"
+              className="rounded-3xl border border-[#2f2f33]/10 bg-white/95 p-6 sm:p-8"
             >
-              <div className="text-center mb-8">
-                <div className="h-20 w-20 mx-auto mb-4 overflow-hidden rounded-2xl border-4 border-[#D4B483] bg-white flex items-center justify-center">
+              <div className="text-center mb-10">
+                <div className="h-22 w-22 mx-auto mb-4 overflow-hidden rounded-3xl border-2 border-[#D4B483]/70 bg-[#f5f6f7] flex items-center justify-center">
                   {businessLogoPreview ? (
                     <img
                       src={businessLogoPreview}
@@ -454,20 +454,20 @@ const Setting = () => {
                     </span>
                   )}
                 </div>
-                <h2 className="text-3xl font-bold text-[#2f2f33] mb-2">{formik.values.businessName}</h2>
-                <p className="text-sm text-[#2f2f33]/70">{formik.values.businessEmail}</p>
+                <h2 className="text-3xl font-bold tracking-tight text-[#2f2f33] mb-2">{formik.values.businessName}</h2>
+                <p className="text-sm font-medium text-[#2f2f33]/70">{formik.values.businessEmail}</p>
               </div>
 
               {/* Business Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
                 {/* Left Column */}
                 <div className="space-y-4">
-                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                  <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                     <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Business Address</p>
                     <p className="text-sm text-[#2f2f33] whitespace-pre-wrap">{formik.values.businessAddress}</p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                  <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                     <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Phone</p>
                     <div className="flex items-center gap-2">
                       <FaPhone className="text-[#3a6f77]" />
@@ -475,7 +475,7 @@ const Setting = () => {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                  <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                     <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Email</p>
                     <div className="flex items-center gap-2">
                       <FaEnvelope className="text-[#3a6f77]" />
@@ -486,17 +486,17 @@ const Setting = () => {
 
                 {/* Right Column */}
                 <div className="space-y-4">
-                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                  <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                     <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">GST Number</p>
                     <p className="text-sm text-[#2f2f33] font-mono">{formik.values.gstNumber}</p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                  <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                     <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Currency</p>
                     <p className="text-sm text-[#2f2f33]">{formik.values.defaultCurrency}</p>
                   </div>
 
-                  <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                  <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                     <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Signature</p>
                     {formik.values.signatureUrl ? (
                       <img src={formik.values.signatureUrl} alt="Signature" className="h-12 object-contain" />
@@ -511,23 +511,23 @@ const Setting = () => {
               {hasProfile && (
                 <div className="border-t border-gray-200 pt-8 mt-8">
                   <h3 className="text-xl font-bold text-[#2f2f33] mb-6">Profile Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                       <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Name</p>
                       <p className="text-sm text-[#2f2f33]">{profileFormik.values.name}</p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                    <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                       <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Email</p>
                       <p className="text-sm text-[#2f2f33]">{profileFormik.values.email}</p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                    <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                       <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Phone</p>
                       <p className="text-sm text-[#2f2f33]">{profileFormik.values.phone}</p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-[#f5f6f7] to-gray-50 rounded-lg p-4 border border-[#D4B483]/30">
+                    <div className="rounded-2xl p-4 border border-[#D4B483]/30 bg-linear-to-br from-[#f5f6f7] to-gray-50">
                       <p className="text-xs font-semibold uppercase tracking-widest text-[#3a6f77] mb-2">Social Media</p>
                       <a href={profileFormik.values.social} target="_blank" rel="noopener noreferrer" className="text-sm text-[#3a6f77] hover:underline break-all">
                         {profileFormik.values.social}
@@ -537,14 +537,14 @@ const Setting = () => {
                 </div>
               )}
 
-              <div className="mt-8 text-center">
+              <div className="mt-8 flex justify-end">
                 <button
                   onClick={() => {
                     formik.resetForm();
                     profileFormik.resetForm();
                     setViewMode(false);
                   }}
-                  className="px-6 py-3 bg-[#3a6f77] text-white font-bold rounded-lg hover:bg-[#2c5359] transition-all duration-200 hover:-translate-y-0.5"
+                  className="px-6 py-3 bg-[#3a6f77] text-white font-bold rounded-xl hover:bg-[#2c5359] transition-all duration-200 hover:-translate-y-0.5"
                 >
                   Edit Details
                 </button>

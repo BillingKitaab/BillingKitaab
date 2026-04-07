@@ -145,11 +145,13 @@ function CtaButton({
   style,
   disabled,
   onClick,
+  highlighted,
 }: {
   label:    string;
   style:    CtaStyle;
   disabled: boolean;
   onClick:  () => void;
+  highlighted: boolean;
 }) {
   // py-3 on mobile for a comfortable touch target; py-2 on sm+ for density
   const base = `
@@ -172,8 +174,12 @@ function CtaButton({
               hover:bg-gray-50 focus-visible:ring-gray-300`,
   };
 
+  const highlightedClass = highlighted && !disabled
+    ? "bg-teal-600 text-white border-teal-600 hover:bg-teal-600 focus-visible:ring-teal-500 shadow-sm ring-1 ring-teal-500/20"
+    : "";
+
   return (
-    <button className={styleMap[style]} onClick={onClick} disabled={disabled}>
+    <button className={`${styleMap[style]} ${highlightedClass}`} onClick={onClick} disabled={disabled}>
       {label}
     </button>
   );
@@ -186,24 +192,31 @@ function PlanCard({
   isYearly,
   isCurrentPlan,
   isLoading,
+  isHighlighted,
   onSelect,
+  onHighlight,
 }: {
   plan:          Plan;
   isYearly:      boolean;
   isCurrentPlan: boolean;
   isLoading:     boolean;
+  isHighlighted: boolean;
   onSelect:      (plan: Plan) => void;
+  onHighlight:   (planId: string) => void;
 }) {
   const isFree = plan.priceMonthly === null && plan.priceYearly === null;
   const displayPrice = isYearly ? plan.priceYearly : plan.priceMonthly;
 
-  // Featured plan gets a prominent teal border; others get a subtle gray one
-  const cardBorder = plan.isFeatured
+  // Highlighted plan gets a prominent teal border; others get a subtle gray one
+  const cardBorder = isHighlighted
     ? "border-2 border-teal-500"
     : "border border-gray-200";
 
   return (
-    <div className={`relative flex flex-col bg-white rounded-xl ${cardBorder} p-5 sm:p-4`}>
+    <div
+      className={`relative flex flex-col bg-white rounded-xl ${cardBorder} p-5 sm:p-4`}
+      onClick={() => onHighlight(plan.id)}
+    >
 
       {/* Badge — "Free" or "Most popular" */}
       <Badge variant={plan.badge} />
@@ -247,9 +260,10 @@ function PlanCard({
       {/* CTA — label and style change when the plan is already active */}
       <CtaButton
         label={isLoading ? "Processing..." : (isCurrentPlan ? "Current plan" : plan.ctaLabel)}
-        style={isCurrentPlan ? "outline" : plan.ctaStyle}
+        style={isCurrentPlan ? "outline" : (isHighlighted ? "primary" : plan.ctaStyle)}
         disabled={isLoading || isCurrentPlan}
         onClick={() => onSelect(plan)}
+        highlighted={isHighlighted}
       />
     </div>
   );
@@ -331,6 +345,7 @@ export default function PlanBilling({
   const [plans, setPlans] = useState<Plan[]>(FALLBACK_PLANS);
   const [isYearly, setIsYearly] = useState<boolean>(true);
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -467,6 +482,7 @@ export default function PlanBilling({
   };
 
   const currentPlan = plans.find((p) => p.id === currentPlanId) || plans[0];
+  const highlightedPlanId = selectedPlanId ?? plans.find((plan) => plan.isFeatured)?.id ?? plans[0]?.id;
 
   return (
     /*
@@ -520,7 +536,9 @@ export default function PlanBilling({
               isYearly={isYearly}
               isCurrentPlan={currentPlanId === plan.id}
               isLoading={loadingPlanId === plan.id}
+              isHighlighted={highlightedPlanId === plan.id}
               onSelect={handleSelectPlan}
+              onHighlight={setSelectedPlanId}
             />
           ))}
         </div>

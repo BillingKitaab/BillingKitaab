@@ -118,7 +118,7 @@ const AddProductPageContent = () => {
   return (
     <div className='flex'>
       <Sidebar />
-      <div className='w-full min-h-screen bg-[#f5f6f7] p-4 sm:p-6 md:p-8'>
+      <div className='w-full min-h-screen bg-[#f5f6f7] p-4 sm:p-6 md:p-8 flex items-center'>
         <div className='mx-auto max-w-4xl rounded-2xl border border-[#2f2f33]/10 bg-white p-4 sm:p-6'>
           <div className='mb-4 flex items-center justify-between gap-3'>
             <h1 className='text-2xl sm:text-3xl font-extrabold text-[#2f2f33]'>
