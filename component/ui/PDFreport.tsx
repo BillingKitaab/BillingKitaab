@@ -32,17 +32,15 @@ interface Report {
 
 // ── ConfigurePanel Component ──
 function ConfigurePanel({
-  selected,
-  templates,
+  template,
   onPreview,
   onGenerate,
 }: {
-  selected: number | null;
-  templates: Template[];
+  template: Template;
   onPreview: (template: Template) => void;
   onGenerate: (template: Template) => void;
 }) {
-  const t = templates.find((t: Template) => t.id === selected);
+  const t = template;
   const [dateFrom] = useState("01-01-2026");
   const [dateTo] = useState("20-02-2026");
   const [sections, setSections] = useState<Record<string, boolean>>({
@@ -54,15 +52,6 @@ function ConfigurePanel({
   });
 
   const toggle = (key: string) => setSections((prev) => ({ ...prev, [key]: !prev[key] }));
-
-  if (!t) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full gap-3" style={{ color: "#2f2f3340" }}>
-        <FileIcon size={40} />
-        <p className="text-sm font-medium">Select a template to configure</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-4 h-full overflow-y-auto">
@@ -358,7 +347,7 @@ const templates: Template[] = [
 // ── Main Component ──
 export default function PDFreport() {
   const router = useRouter();
-  const [selected, setSelected] = useState<number | null>(3);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template>(templates[2]);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
 
   const handleGenerateReport = () => {
@@ -438,11 +427,11 @@ export default function PDFreport() {
           {/* 4 Cards in 2x2 grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {templates.map((t) => {
-              const isSelected = selected === t.id;
+              const isSelected = selectedTemplate.id === t.id;
               return (
                 <div
                   key={t.id}
-                  onClick={() => setSelected(isSelected ? null : t.id)}
+                  onClick={() => setSelectedTemplate(t)}
                   className="rounded-2xl p-5 cursor-pointer transition-all duration-200"
                   style={{
                     background: "#2f2f33",
@@ -475,8 +464,7 @@ export default function PDFreport() {
         {/* ── Right: Configure Panel ── */}
         <div className="w-full lg:w-80 xl:w-96 px-4 sm:px-6 py-6" style={{ background: "#2f2f33" }}>
           <ConfigurePanel
-            selected={selected}
-            templates={templates}
+            template={selectedTemplate}
             onPreview={handlePreviewTemplate}
             onGenerate={handleGenerateTemplate}
           />

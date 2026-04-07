@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 
 const FiSearch = () => (
@@ -113,6 +114,38 @@ const Customer = () => {
     setNewCustomer({ name: '', email: '', phone: '', city: '', gst_number: '', status: 'good' });
     setEditingCustomerId(null);
     setShowAddModal(false);
+  };
+
+  const handleDeleteCustomer = async (customer: any) => {
+    if (!businessId) return;
+
+    const { count } = await supabase
+      .from('invoices')
+      .select('*', { count: 'exact', head: true })
+      .eq('business_id', businessId)
+      .eq('customer_id', customer.id);
+
+    if ((count || 0) > 0) {
+      alert('This customer cannot be deleted because invoices already exist for them. Delete the invoices first.');
+      return;
+    }
+
+    const shouldDelete = window.confirm('Delete this customer?');
+    if (!shouldDelete) return;
+
+    const { error } = await supabase
+      .from('customers')
+      .delete()
+      .eq('id', customer.id)
+      .eq('business_id', businessId);
+
+    if (error) {
+      alert('Failed to delete customer: ' + error.message);
+      return;
+    }
+
+    setCustomers(prev => prev.filter(c => c.id !== customer.id));
+    setSelectedCustomer(null);
   };
 
   const statusClass = (status: string) => {
@@ -236,6 +269,14 @@ const Customer = () => {
         >
           Edit
         </button>
+        <button
+          onClick={() => handleDeleteCustomer(cust)}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-400/40 text-red-400 bg-transparent cursor-pointer hover:bg-red-500/10 hover:text-red-300 transition-all duration-200"
+          aria-label="Delete customer"
+          title="Delete customer"
+        >
+          <Trash2 size={14} />
+        </button>
       </div>
     </div>
   );
@@ -250,16 +291,26 @@ const Customer = () => {
               <p suppressHydrationWarning className="font-medium text-xs text-[#2f2f33]/80 mt-0.5 m-0">{`Today ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`}</p>
             </div>
             <div className="flex gap-2 items-center flex-wrap">
-              <div className="flex items-center border border-[#2f2f33]/30 rounded-lg px-2.5 py-1.5 bg-white">
-                <span className="text-[#2f2f33]/70 mr-1 flex"><FiSearch /></span>
+              <div className="flex items-center bg-[#2f2f33] rounded-md px-3 py-1.5 gap-2 w-full sm:w-60">
+                <span className="text-[#f5f6f7]/50 flex"><FiSearch /></span>
                 <input
                   type="text"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="outline-none text-xs font-medium text-[#2f2f33] placeholder-[#2f2f33]/50 bg-transparent border-none w-20 sm:w-36"
+                  className="flex-1 outline-none text-xs font-medium text-[#f5f6f7] placeholder-[#f5f6f7]/50 bg-transparent border-none min-w-0"
                 />
               </div>
+              <select
+                value={sortOption}
+                onChange={e => setSortOption(e.target.value)}
+                className="px-4 py-1.5 rounded-md bg-[#D4B483] text-[#2f2f33] font-semibold text-sm cursor-pointer"
+              >
+                <option value="highest">Sort: Highest Revenue</option>
+                <option value="lowest">Sort: Lowest Revenue</option>
+                <option value="newest">Sort: Newest</option>
+                <option value="oldest">Sort: Oldest</option>
+              </select>
               <button onClick={handleExportCSV} className="px-3 py-1.5 text-xs font-bold bg-[#D4B483] text-[#2f2f33] rounded-lg border-none cursor-pointer hover:bg-[#c9a86c] transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5">
                 Export CSV
               </button>
@@ -307,21 +358,11 @@ const Customer = () => {
                 </button>
               ))}
             </div>
-            <select
-              value={sortOption}
-              onChange={e => setSortOption(e.target.value)}
-              className="px-2 py-0.5 text-xs font-semibold rounded-md border border-[#3a6f77] text-[#3a6f77] bg-[#f5f6f7] cursor-pointer"
-            >
-              <option value="highest">Sort: Highest Revenue</option>
-              <option value="lowest">Sort: Lowest Revenue</option>
-              <option value="newest">Sort: Newest</option>
-              <option value="oldest">Sort: Oldest</option>
-            </select>
           </div>
 
           <div className="flex-1 min-h-0 mx-3 my-3 bg-[#2f2f33] rounded-xl flex flex-col overflow-hidden">
-            <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr] gap-x-3 px-5 py-3 shrink-0 border-b border-[#f5f6f7]/10">
-              {['CUSTOMER', 'EMAIL', 'PHONE', 'CITY', 'REVENUE', 'STATUS'].map((h, i) => (
+            <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr_40px] gap-x-3 px-5 py-3 shrink-0 border-b border-[#f5f6f7]/10">
+              {['CUSTOMER', 'EMAIL', 'PHONE', 'CITY', 'REVENUE', 'STATUS', ''].map((h, i) => (
                 <span key={i} className="text-[10px] font-semibold text-[#f5f6f7]/40 uppercase tracking-widest">{h}</span>
               ))}
             </div>
@@ -342,7 +383,7 @@ const Customer = () => {
                     onClick={() => setSelectedCustomer(selectedCustomer?.id === cust.id ? null : cust)}
                     className={`border-b border-[#f5f6f7]/[0.07] transition-colors duration-150 cursor-pointer ${selectedCustomer?.id === cust.id ? 'bg-[#f5f6f7]/10' : 'hover:bg-[#f5f6f7]/5'}`}
                   >
-                    <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr] gap-x-3 px-5 py-3.5 items-center">
+                    <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr_40px] gap-x-3 px-5 py-3.5 items-center">
                       <span className="text-sm text-[#f5f6f7] font-medium truncate">{cust.name}</span>
                       <span className="text-sm text-[#f5f6f7]/60 truncate">{cust.email}</span>
                       <span className="text-sm text-[#f5f6f7]/60 truncate">{cust.phone}</span>
@@ -355,9 +396,21 @@ const Customer = () => {
                         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotClass(cust.status)}`}></span>
                         {cust.status}
                       </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCustomer(cust);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-red-400/40 text-red-300 transition-colors hover:bg-red-500/10 hover:text-red-200"
+                        aria-label="Delete customer"
+                        title="Delete customer"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
 
-                    <div className="grid grid-cols-[1fr_1fr_80px] sm:hidden gap-x-3 px-4 py-3 items-center">
+                    <div className="grid grid-cols-[1fr_1fr_80px_32px] sm:hidden gap-x-3 px-4 py-3 items-center">
                       <div className="flex flex-col min-w-0">
                         <span className="text-xs text-[#f5f6f7] font-medium truncate">{cust.name}</span>
                         <span className="text-[10px] text-[#f5f6f7]/45 truncate">{cust.city}</span>
@@ -373,6 +426,18 @@ const Customer = () => {
                         </span>
                         <span className="text-[10px] text-[#f5f6f7]/50">{cust.revenue}</span>
                       </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCustomer(cust);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-red-400/40 text-red-300 transition-colors hover:bg-red-500/10 hover:text-red-200"
+                        aria-label="Delete customer"
+                        title="Delete customer"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </div>
                 ))

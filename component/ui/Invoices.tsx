@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
 const Invoices = () => {
@@ -130,6 +131,23 @@ const dotColor = (status: string) => {
   return "#D4B483";
 };
 
+  const handleDeleteInvoice = async (invoiceId: string) => {
+    const shouldDelete = window.confirm('Delete this invoice?');
+    if (!shouldDelete) return;
+
+    const { error } = await supabase
+      .from('invoices')
+      .delete()
+      .eq('id', invoiceId);
+
+    if (error) {
+      alert('Failed to delete invoice: ' + error.message);
+      return;
+    }
+
+    setInvoices(prev => prev.filter(inv => inv.rawId !== invoiceId));
+  };
+
 
   const filters = [
     { label: "All", count: invoices.length },
@@ -164,15 +182,37 @@ const dotColor = (status: string) => {
   const overdueCount = invoices.filter(i => i.rawStatus === 'overdue').length;
 
   return (
-    <div className="h-[100vh] w-full flex flex-col overflow-hidden">
+    <div className="h-screen w-full flex flex-col overflow-hidden">
 
       {/* Header */}
-      <div className="w-full flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 flex-shrink-0">
+      <div className="w-full flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 shrink-0 flex-wrap gap-3 bg-[#f5f6f7]">
         <div>
           <h1 className="text-2xl sm:text-3xl text-[#2f2f33] font-bold font-serif">Invoices</h1>
           <p suppressHydrationWarning className="font-medium text-xs sm:text-sm text-[#2f2f33]/80 font-sans mt-0.5">{`Today ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`}</p>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center flex-wrap">
+          <div className="flex items-center bg-[#2f2f33] rounded-md px-3 py-1.5 gap-2 w-full sm:w-60">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#f5f6f7]/50 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search invoices..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 bg-transparent text-sm text-[#f5f6f7] placeholder-[#f5f6f7]/50 focus:outline-none"
+            />
+          </div>
+
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            className="px-4 py-1.5 rounded-md bg-[#D4B483] text-[#2f2f33] font-semibold text-sm cursor-pointer"
+          >
+            <option>Newest First</option>
+            <option>Oldest First</option>
+          </select>
+
           {invoiceLimit !== null && (
             <span className="text-xs text-[#2f2f33]/60 hidden sm:block font-medium">
               {monthUsage} / {invoiceLimit} Invoices ({planName})
@@ -199,77 +239,67 @@ const dotColor = (status: string) => {
       </div>
 
       {/* Stat Cards */}
-      <div className="flex gap-3 sm:gap-4 mx-3 flex-shrink-0 overflow-x-auto pb-1">
-        <div className="min-w-[150px] sm:min-w-0 flex-1 bg-[#2f2f33] rounded-xl p-3 sm:p-4">
+      <div className="flex gap-3 sm:gap-4 mx-3 shrink-0 overflow-x-auto pb-1">
+        <div className="min-w-37.5 sm:min-w-0 flex-1 bg-[#2f2f33] rounded-xl p-3 sm:p-4">
           <p className="text-xs font-medium font-sans text-[#f5f6f7]/70 pb-1">TOTAL INVOICED</p>
           <h2 className="text-2xl sm:text-3xl font-bold text-white font-serif">₹{totalInvoiced.toLocaleString('en-IN')}</h2>
           <h3 className="text-xs font-medium text-green-300 font-serif mt-3">{totalInvoicesCount} INVOICE{totalInvoicesCount !== 1 ? 'S' : ''}</h3>
         </div>
-        <div className="min-w-[130px] sm:min-w-0 flex-1 bg-[#2f2f33] rounded-xl p-3 sm:p-4">
+        <div className="min-w-32.5 sm:min-w-0 flex-1 bg-[#2f2f33] rounded-xl p-3 sm:p-4">
           <p className="text-xs font-medium font-sans text-[#f5f6f7]/70 pb-1">COLLECTED</p>
           <h2 className="text-2xl sm:text-3xl font-bold text-green-400 font-serif">₹{collected.toLocaleString('en-IN')}</h2>
           <p className="text-xs text-[#f5f6f7]/50 font-sans mt-3">{collectedCount} PAID</p>
         </div>
-        <div className="min-w-[130px] sm:min-w-0 flex-1 bg-[#2f2f33] rounded-xl p-3 sm:p-4">
+        <div className="min-w-32.5 sm:min-w-0 flex-1 bg-[#2f2f33] rounded-xl p-3 sm:p-4">
           <p className="text-xs font-medium font-sans text-[#f5f6f7]/70 pb-1">PENDING</p>
           <h2 className="text-2xl sm:text-3xl font-bold font-serif" style={{ color: "#D4B483" }}>₹{pending.toLocaleString('en-IN')}</h2>
           <p className="text-xs text-[#f5f6f7]/50 font-sans mt-3">{pendingCount} UNPAID</p>
         </div>
-        <div className="min-w-[130px] sm:min-w-0 flex-1 bg-[#2f2f33] rounded-xl p-3 sm:p-4">
+        <div className="min-w-32.5 sm:min-w-0 flex-1 bg-[#2f2f33] rounded-xl p-3 sm:p-4">
           <p className="text-xs font-medium font-sans text-[#f5f6f7]/70 pb-1">OVERDUE</p>
           <h2 className="text-2xl sm:text-3xl font-bold text-red-400 font-serif">₹{overdueAmount.toLocaleString('en-IN')}</h2>
           <p className="text-xs text-[#f5f6f7]/50 font-sans mt-3">{overdueCount} OVERDUE</p>
         </div>
       </div>
 
-      {/* Search + Filter + Sort */}
-      <div className="flex items-center justify-between mx-3 mt-4 gap-3 flex-shrink-0 flex-wrap">
-        <div className="flex items-center bg-[#2f2f33] rounded-md px-3 py-1.5 gap-2 w-full sm:w-56">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#f5f6f7]/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search invoices..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-sm text-[#f5f6f7] placeholder-[#f5f6f7]/50 focus:outline-none"
-          />
-        </div>
-
+      {/* Filters */}
+      <div className="flex items-center justify-between mx-3 mt-4 gap-3 shrink-0 flex-wrap">
         <div className="flex gap-2 flex-wrap">
           {filters.map((f) => (
             <button
               key={f.label}
               onClick={() => setActiveFilter(f.label)}
-              className="px-3 py-1 rounded-md text-sm font-medium transition-all duration-150 cursor-pointer"
-              style={{
-                backgroundColor: activeFilter === f.label ? "#D4B483" : "#2f2f33",
-                color: activeFilter === f.label ? "#2f2f33" : "#f5f6f7",
-              }}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-all duration-150 cursor-pointer border ${activeFilter === f.label ? (
+                f.label === "All"
+                  ? "bg-[#D4B483] text-[#2f2f33] border-transparent"
+                  : f.label === "Paid"
+                    ? "bg-[#3a6f77] text-[#f5f6f7] border-transparent"
+                    : f.label === "Pending"
+                      ? "bg-[#D4B483] text-[#2f2f33] border-transparent"
+                      : "bg-[#2f2f33] text-[#f5f6f7] border-transparent"
+              ) : (
+                f.label === "All"
+                  ? "bg-transparent text-[#D4B483] border-[#D4B483]"
+                  : f.label === "Paid"
+                    ? "bg-transparent text-[#3a6f77] border-[#3a6f77]"
+                    : f.label === "Pending"
+                      ? "bg-transparent text-[#D4B483] border-[#D4B483]"
+                      : "bg-transparent text-[#2f2f33]/70 border-[#2f2f33]/40"
+              )}`}
             >
               {f.label} {f.count}
             </button>
           ))}
         </div>
-
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-          className="px-4 py-1.5 rounded-md bg-[#D4B483] text-[#2f2f33] font-semibold text-sm cursor-pointer"
-        >
-          <option>Newest First</option>
-          <option>Oldest First</option>
-        </select>
       </div>
 
       {/* Table */}
       <div className="mx-3 mt-4 mb-3 bg-[#2f2f33] rounded-xl flex flex-col flex-1 min-h-0 overflow-x-auto">
 
-        <div className="min-w-[760px] flex flex-col flex-1 min-h-0">
+        <div className="min-w-190 flex flex-col flex-1 min-h-0">
 
         {/* Table Header */}
-        <div className="grid grid-cols-[1fr_1.5fr_2fr_1.2fr_1fr_1fr_40px] gap-2 px-4 py-3 flex-shrink-0" style={{ borderBottom: "1px solid #f5f6f722" }}>
+        <div className="grid grid-cols-[1fr_1.5fr_2fr_1.2fr_1fr_1fr_40px_40px] gap-2 px-4 py-3 shrink-0" style={{ borderBottom: "1px solid #f5f6f722" }}>
           <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">INVOICE</span>
           <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">CUSTOMER</span>
           <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">ITEMS</span>
@@ -277,6 +307,7 @@ const dotColor = (status: string) => {
           <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">AMOUNT</span>
           <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50">DUE DATE</span>
           <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50 text-center">PDF</span>
+          <span className="text-xs font-sans tracking-widest text-[#f5f6f7]/50 text-center">DEL</span>
         </div>
 
         {/* Scrollable Rows */}
@@ -287,7 +318,7 @@ const dotColor = (status: string) => {
             filtered.map((inv) => (
               <div
                 key={inv.id}
-                className="grid grid-cols-[1fr_1.5fr_2fr_1.2fr_1fr_1fr_40px] gap-2 py-3 items-center hover:bg-[#f5f6f7]/5 rounded-lg transition-colors duration-100"
+                className="grid grid-cols-[1fr_1.5fr_2fr_1.2fr_1fr_1fr_40px_40px] gap-2 py-3 items-center hover:bg-[#f5f6f7]/5 rounded-lg transition-colors duration-100"
                 style={{ borderBottom: "1px solid #f5f6f711" }}
               >
                 <span className="text-sm font-mono" style={{ color: "#D4B483" }}>{inv.id}</span>
@@ -314,7 +345,7 @@ const dotColor = (status: string) => {
                   )}
                 </div>
                 <div className="relative w-fit">
-                  <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: dotColor(inv.status) }}></span>
+                  <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: dotColor(inv.status) }}></span>
                   <select
                     value={inv.status}
                     onChange={(e) => updateStatus(inv.rawId, e.target.value)}
@@ -343,6 +374,17 @@ const dotColor = (status: string) => {
                       </svg>
                     </span>
                   )}
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteInvoice(inv.rawId)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-400/40 text-red-300 transition-colors hover:bg-red-500/10 hover:text-red-200"
+                    title="Delete invoice"
+                    aria-label="Delete invoice"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               </div>
             ))

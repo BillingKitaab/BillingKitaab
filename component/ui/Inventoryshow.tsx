@@ -87,8 +87,11 @@ const Inventoryshow = () => {
   }, [products, searchTerm])
 
   return (
-    <div className='w-full min-h-screen bg-[#f5f6f7] p-4 sm:p-6 md:p-8'>
-      <div className='mx-auto max-w-6xl'>
+    <div className='relative w-full min-h-screen overflow-hidden bg-[#f5f6f7] p-4 sm:p-6 md:p-8'>
+      <div className='pointer-events-none absolute -top-20 -left-20 h-72 w-72 rounded-full bg-[#D4B483]/20 blur-3xl' />
+      <div className='pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-[#3a6f77]/15 blur-3xl' />
+
+      <div className='relative mx-auto max-w-6xl'>
         <AnimatePresence>
           {showAddedToast && (
             <motion.div
@@ -118,67 +121,67 @@ const Inventoryshow = () => {
           )}
         </AnimatePresence>
 
-        <div className='rounded-2xl border border-[#2f2f33]/10 bg-white p-4 sm:p-6'>
+        <div className='rounded-3xl border border-[#2f2f33]/10 bg-[#f5f6f7]/95 p-5 backdrop-blur-sm sm:p-6'>
           <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
             <div>
-              <h1 className='text-2xl sm:text-3xl font-extrabold text-[#2f2f33]'>Inventory</h1>
-              <p className='mt-1 text-sm text-[#2f2f33]/70'>
+              <h1 className='text-2xl sm:text-3xl font-extrabold tracking-tight text-[#2f2f33]'>Inventory</h1>
+              <p className='mt-1 text-sm font-medium text-[#2f2f33]/70'>
                 Add products and see everything you added here.
               </p>
             </div>
 
-            <Link
-              href='/inventory/add-product'
-              className='rounded-lg bg-[#3a6f77] px-4 py-2.5 text-sm font-bold text-[#f5f6f7] transition-colors hover:bg-[#2f2f33]'
-            >
-              Add Product
-            </Link>
+            <div className='flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto'>
+              <div className='relative w-full sm:w-80'>
+                <FaSearch className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[#f5f6f7]/45' />
+                <input
+                  type='text'
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder='Search product, SKU, category'
+                  className='w-full rounded-xl border border-[#2f2f33]/10 bg-[#2f2f33] py-2.5 pl-9 pr-3 text-sm text-[#f5f6f7] outline-none transition-colors focus:border-[#D4B483]'
+                />
+              </div>
+
+              <Link
+                href='/inventory/add-product'
+                className='shrink-0 rounded-xl bg-[#3a6f77] px-5 py-2.5 text-sm font-bold text-[#f5f6f7] transition-colors hover:bg-[#2f2f33]'
+              >
+                Add Product
+              </Link>
+            </div>
           </div>
 
-          <div className='mt-4'>
-            <div className='relative w-full sm:max-w-sm'>
-              <FaSearch className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[#2f2f33]/50' />
-              <input
-                type='text'
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder='Search product, SKU, category'
-                className='w-full rounded-lg border border-[#2f2f33]/20 bg-[#f5f6f7] py-2 pl-9 pr-3 text-sm text-[#2f2f33] outline-none focus:border-[#3a6f77]'
-              />
+          <div className='mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3'>
+            <div className='rounded-2xl border border-[#D4B483]/50 bg-[#D4B483]/12 p-4'>
+              <p className='text-xs font-semibold uppercase tracking-wide text-[#2f2f33]/65'>Total Products</p>
+              <p className='mt-1 text-3xl font-extrabold text-[#2f2f33]'>{totalProducts}</p>
             </div>
-          </div>
-
-          <div className='mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3'>
-            <div className='rounded-xl border border-[#D4B483]/50 bg-[#D4B483]/15 p-4'>
-              <p className='text-xs font-semibold text-[#2f2f33]/70'>Total Products</p>
-              <p className='mt-1 text-2xl font-bold text-[#2f2f33]'>{totalProducts}</p>
+            <div className='rounded-2xl border border-[#3a6f77]/40 bg-[#3a6f77]/10 p-4'>
+              <p className='text-xs font-semibold uppercase tracking-wide text-[#2f2f33]/65'>Total Stock Units</p>
+              <p className='mt-1 text-3xl font-extrabold text-[#2f2f33]'>{totalStock}</p>
             </div>
-            <div className='rounded-xl border border-[#3a6f77]/40 bg-[#3a6f77]/10 p-4'>
-              <p className='text-xs font-semibold text-[#2f2f33]/70'>Total Stock Units</p>
-              <p className='mt-1 text-2xl font-bold text-[#2f2f33]'>{totalStock}</p>
-            </div>
-            <div className='rounded-xl border border-[#2f2f33]/15 bg-[#f5f6f7] p-4'>
-              <p className='text-xs font-semibold text-[#2f2f33]/70'>Latest Action</p>
+            <div className='rounded-2xl border border-[#2f2f33]/15 bg-[#f5f6f7] p-4'>
+              <p className='text-xs font-semibold uppercase tracking-wide text-[#2f2f33]/65'>Latest Action</p>
               <p className='mt-1 text-sm font-semibold text-[#2f2f33]'>
                 {products.length > 0 ? 'Product added successfully' : 'No products added yet'}
               </p>
             </div>
           </div>
 
-          <div className='mt-6'>
-            <h2 className='text-lg font-bold text-[#2f2f33]'>Added Products</h2>
+          <div className='mt-7'>
+            <h2 className='text-xl font-extrabold text-[#2f2f33]'>Added Products</h2>
 
             {products.length === 0 ? (
-              <div className='mt-3 rounded-xl border border-dashed border-[#2f2f33]/25 bg-[#f5f6f7] p-6 text-center text-sm text-[#2f2f33]/60'>
+              <div className='mt-3 rounded-2xl border border-dashed border-[#2f2f33]/25 bg-[#f5f6f7] p-6 text-center text-sm text-[#2f2f33]/60'>
                 No product added yet. Click Add Product to add your first item.
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className='mt-3 rounded-xl border border-dashed border-[#2f2f33]/25 bg-[#f5f6f7] p-6 text-center text-sm text-[#2f2f33]/60'>
+              <div className='mt-3 rounded-2xl border border-dashed border-[#2f2f33]/25 bg-[#f5f6f7] p-6 text-center text-sm text-[#2f2f33]/60'>
                 No matching product found.
               </div>
             ) : (
-              <div className='mt-3 overflow-x-auto rounded-xl border border-[#2f2f33]/10'>
-                <table className='w-full min-w-190 bg-white'>
+              <div className='mt-3 overflow-x-auto rounded-2xl border border-[#2f2f33]/10 bg-white'>
+                <table className='w-full min-w-190 bg-[#f5f6f7]'>
                   <thead className='bg-[#2f2f33] text-[#f5f6f7]'>
                     <tr>
                       <th className='px-3 py-2 text-left text-xs font-semibold'>Product</th>
@@ -194,7 +197,7 @@ const Inventoryshow = () => {
                   </thead>
                   <tbody>
                     {filteredProducts.map((item, index) => (
-                      <tr key={item.id} className={index % 2 === 0 ? 'bg-white' : 'bg-[#f5f6f7]'}>
+                      <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#f5f6f7]' : 'bg-[#f5f6f7]/70'} border-b border-[#2f2f33]/5 last:border-b-0`}>
                         <td className='px-3 py-2 text-sm text-[#2f2f33] font-semibold'>{item.name}</td>
                         <td className='px-3 py-2 text-sm text-[#2f2f33]'>{item.sku || '-'}</td>
                         <td className='px-3 py-2 text-sm text-[#2f2f33]'>{item.category}</td>
@@ -207,7 +210,7 @@ const Inventoryshow = () => {
                           <div className='flex flex-wrap gap-2'>
                             <Link
                               href={`/inventory/add-product?edit=${item.id}`}
-                              className='inline-flex items-center gap-1 rounded-md border border-[#3a6f77]/30 px-3 py-1.5 text-xs font-semibold text-[#3a6f77] transition-colors hover:border-[#3a6f77] hover:bg-[#3a6f77]/5'
+                              className='inline-flex items-center gap-1 rounded-lg border border-[#3a6f77]/35 bg-[#f5f6f7] px-3 py-1.5 text-xs font-semibold text-[#3a6f77] transition-colors hover:border-[#3a6f77] hover:bg-[#3a6f77]/10'
                             >
                               <FaEdit className='text-[10px]' />
                               Edit
@@ -215,7 +218,7 @@ const Inventoryshow = () => {
                             <button
                               type='button'
                               onClick={() => handleDeleteProduct(item.id)}
-                              className='inline-flex items-center gap-1 rounded-md border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:border-red-500 hover:bg-red-50'
+                              className='inline-flex items-center gap-1 rounded-lg border border-[#2f2f33]/25 bg-[#f5f6f7] px-3 py-1.5 text-xs font-semibold text-[#2f2f33] transition-colors hover:border-[#2f2f33]/45 hover:bg-[#D4B483]/15'
                             >
                               <FaTrash className='text-[10px]' />
                               Delete

@@ -9,6 +9,22 @@ import { FaUser, FaCreditCard, FaPaintBrush, FaBell, FaBars, FaTimes, FaHome } f
 
 const Settingsidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
+
+  const handleBackToHome = () => {
+    setShowBackConfirm(true);
+  };
+
+  const confirmBackToHome = () => {
+    if (typeof window !== "undefined") {
+      window.onbeforeunload = null;
+      window.location.assign('/');
+    }
+  };
+
+  const cancelBackToHome = () => {
+    setShowBackConfirm(false);
+  };
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -69,25 +85,55 @@ const Settingsidebar = () => {
 
       {/* Back to Home */}
       <div className="mt-auto pt-6">
-        <Link
-          href="/"
+        <button
+          type="button"
+          onClick={handleBackToHome}
           className="flex items-center gap-2 w-full px-3 py-2 rounded-md bg-[#3a6f77] text-white hover:bg-[#2f5a61] transition-colors duration-200 text-sm font-medium"
         >
           <FaHome /> Back to Home
-        </Link>
+        </button>
       </div>
     </div>
   );
 
   return (
     <>
+      {showBackConfirm && (
+        <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 sm:p-6 shadow-2xl">
+            <h3 className="text-base sm:text-lg font-bold text-[#2f2f33]">Back to Home</h3>
+            <p className="mt-2 text-sm text-[#2f2f33]/80">Are you sure you want to go back to home?</p>
+            <div className="mt-5 flex gap-3">
+              <button
+                type="button"
+                onClick={cancelBackToHome}
+                className="flex-1 rounded-lg border border-[#2f2f33]/20 bg-white px-4 py-2 text-sm font-semibold text-[#2f2f33] hover:bg-gray-50"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={confirmBackToHome}
+                className="flex-1 rounded-lg bg-[#3a6f77] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2f5a61]"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile hamburger button */}
       {!isOpen && (
         <button
-          className="fixed top-[146px] left-4 z-30 md:hidden bg-[#f5f6f7] text-[#2f2f33] p-2 rounded-md shadow-md"
+          className="fixed top-[calc(6rem+2.5vh-1ch)] right-4 z-40 md:hidden bg-[#f5f6f7] text-[#2f2f33] p-1.5 rounded-md shadow-md"
           onClick={() => setIsOpen(true)}
+          aria-label="Open settings menu"
         >
-          <FaBars size={18} />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="5" y1="9" x2="19" y2="9" />
+            <line x1="5" y1="15" x2="19" y2="15" />
+          </svg>
         </button>
       )}
 

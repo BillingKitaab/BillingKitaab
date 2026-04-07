@@ -7,7 +7,7 @@ const About = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div id="about" className="min-h-screen w-full bg-gradient-to-b from-[#f5f6f7] via-[#f5f6f7] to-[#2f2f33]/30 p-6 sm:p-10">
+    <div id="about" className="min-h-screen w-full bg-linear-to-b from-[#f5f6f7] via-[#f5f6f7] to-[#2f2f33]/20 p-6 sm:p-10">
 
       <div className="flex flex-col sm:flex-row sm:items-start">
 
@@ -22,7 +22,7 @@ const About = () => {
 
           {/* Cards Container */}
           <div
-            className="relative w-[280px] sm:w-[340px] cursor-pointer"
+            className="relative w-70 sm:w-85 cursor-pointer"
             style={{ height: "300px" }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
@@ -31,7 +31,7 @@ const About = () => {
             <motion.div
               animate={hovered ? { x: 0, y: 160, rotate: 0, scale: 1 } : { x: 0, y: 60, rotate: -2, scale: 0.97 }}
               transition={{ type: "spring", stiffness: 280, damping: 22 }}
-              className="absolute left-0 top-0 w-[220px] sm:w-[240px] bg-[#252530] rounded-2xl p-4 sm:p-5 flex flex-col gap-2 border border-white/5"
+              className="absolute left-0 top-0 w-55 sm:w-60 bg-[#2f2f33] rounded-2xl p-4 sm:p-5 flex flex-col gap-2 border border-white/10"
               style={{ zIndex: 1 }}
             >
               <p className="text-[9px] tracking-[0em] text-[#D4B483]/70 uppercase font-medium">Upcoming Due</p>
@@ -45,7 +45,7 @@ const About = () => {
             <motion.div
               animate={hovered ? { x: 0, y: 0, rotate: 0, scale: 1 } : { x: 60, y: 0, rotate: 2, scale: 1 }}
               transition={{ type: "spring", stiffness: 280, damping: 22 }}
-              className="absolute left-0 top-0 w-[240px] sm:w-[260px] bg-[#2f2f33] rounded-2xl p-4 sm:p-5 flex flex-col gap-3 border border-white/10"
+              className="absolute left-0 top-0 w-60 sm:w-65 bg-[#2f2f33] rounded-2xl p-4 sm:p-5 flex flex-col gap-3 border border-white/10"
               style={{ zIndex: 2 }}
             >
               <p className="text-[9px] tracking-[0em] text-[#D4B483]/70 uppercase font-medium">Latest Payment</p>
@@ -64,7 +64,7 @@ const About = () => {
           <motion.div
             animate={{ y: hovered ? 5 : 0 }}
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
-            className="w-[260px] sm:w-[320px] bg-[#2f2f33] rounded-2xl p-4 sm:p-5 border border-white/10 flex flex-col gap-4 -translate-y-9"
+              className="w-65 sm:w-80 bg-[#2f2f33] rounded-2xl p-4 sm:p-5 border border-white/10 flex flex-col gap-4 -translate-y-9"
           >
             <p className="text-[9px] tracking-[0em] text-[#D4B483]/70 uppercase font-medium">This Month</p>
             <div>
