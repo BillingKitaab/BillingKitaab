@@ -14,6 +14,7 @@ const Setting = () => {
   const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isSavingAll, setIsSavingAll] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
@@ -33,6 +34,7 @@ const Setting = () => {
     businessLogo: null as File | null,
     signatureImage: null as File | null,
     signatureUrl: "",
+    businessLogoUrl: "",
   });
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -45,20 +47,32 @@ const Setting = () => {
   });
   const profileSectionRef = useRef<HTMLDivElement>(null);
 
+  const redirectToAuth = () => {
+    router.push('/signup?error=auth_required');
+  };
+
   useEffect(() => {
     const loadBusiness = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         setLoading(false);
         setProfileLoading(false);
+        redirectToAuth();
         return;
       }
 
-      const { data } = await supabase
+      const { data: businessRows, error: businessFetchError } = await supabase
         .from('businesses')
         .select('*')
         .eq('owner_user_id', user.id)
-        .maybeSingle();
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (businessFetchError) {
+        console.error('Failed to fetch business data:', businessFetchError);
+      }
+
+      const data = businessRows?.[0] || null;
 
       if (data) {
         setBusinessId(data.id);
@@ -73,23 +87,27 @@ const Setting = () => {
           businessLogo: null,
           signatureImage: null,
           signatureUrl: data.signature_url || "",
+          businessLogoUrl: data.logo_path || "",
         });
+        setBusinessLogoPreview(data.logo_path || "");
         // Auto-show summary page when data exists
         setViewMode(true);
       }
 
-      const savedLogo = localStorage.getItem('businessLogo');
-      if (savedLogo) {
-        setBusinessLogoPreview(savedLogo);
-      }
-
       setLoading(false);
 
-      const { data: profileData } = await supabase
+      const { data: profileRows, error: profileFetchError } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (profileFetchError) {
+        console.error('Failed to fetch profile data:', profileFetchError);
+      }
+
+      const profileData = profileRows?.[0] || null;
 
       if (profileData) {
         setProfileId(profileData.id);
@@ -116,73 +134,113 @@ const Setting = () => {
       businessName: Yup.string().required("Business name is required"),
       businessAddress: Yup.string().required("Business address is required"),
       gstNumber: Yup.string().required("GST number is required"),
-      panNumber: Yup.string().required("PAN number is required"),
+      panNumber: Yup.string().optional(),
       businessPhone: Yup.string().required("Phone number is required"),
       businessEmail: Yup.string().email("Invalid email").required("Email is required"),
     }),
     onSubmit: async (values) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      let finalSignatureUrl = values.signatureUrl;
-
-      if (sigMode === 'draw' && sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
-          finalSignatureUrl = sigCanvasRef.current.getTrimmedCanvas().toDataURL('image/png');
-      } else if (values.signatureImage && sigMode === 'upload') {
-        const reader = new FileReader();
-        reader.readAsDataURL(values.signatureImage);
-        finalSignatureUrl = await new Promise((resolve) => {
-           reader.onloadend = () => resolve(reader.result as string);
-        });
-      }
-
-      const businessData = {
-        owner_user_id: user.id,
-        business_name: values.businessName,
-        business_address: values.businessAddress,
-        gst_number: values.gstNumber,
-        pan_number: values.panNumber,
-        business_phone: values.businessPhone,
-        business_email: values.businessEmail,
-        default_currency: values.defaultCurrency,
-        signature_url: finalSignatureUrl,
-      };
-
-      let result;
-      if (businessId) {
-        result = await supabase
-          .from('businesses')
-          .update(businessData)
-          .eq('id', businessId);
-      } else {
-        result = await supabase
-          .from('businesses')
-          .insert(businessData)
-          .select()
-          .single();
-        if (result.data) {
-          setBusinessId(result.data.id);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          redirectToAuth();
+          return;
         }
-      }
+        if (!user.email) {
+          redirectToAuth();
+          return;
+        }
 
-      if (result.error) {
-        alert('Error saving: ' + result.error.message);
-        return;
-      }
-
-      if (values.businessLogo) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const logoData = reader.result as string;
-          localStorage.setItem("businessLogo", logoData);
-          setBusinessLogoPreview(logoData);
+        const userRecord = {
+          id: user.id,
+          email: user.email,
+          business_name: values.businessName,
         };
-        reader.readAsDataURL(values.businessLogo);
-      }
 
-      setShowSuccess(true);
-      setViewMode(true);
-      setTimeout(() => setShowSuccess(false), 2500);
+        const { error: userRecordError } = await supabase
+          .from('app_users')
+          .upsert(userRecord, { onConflict: 'id' });
+
+        if (userRecordError) {
+          console.error('User record error:', userRecordError);
+          alert('Error saving user account: ' + userRecordError.message);
+          return;
+        }
+
+        let finalSignatureUrl = values.signatureUrl;
+        let finalLogoUrl = values.businessLogoUrl;
+
+        if (sigMode === 'draw' && sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
+          finalSignatureUrl = sigCanvasRef.current.getTrimmedCanvas().toDataURL('image/png');
+        } else if (values.signatureImage && sigMode === 'upload') {
+          finalSignatureUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(values.signatureImage!);
+          });
+        }
+
+        if (values.businessLogo) {
+          finalLogoUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(values.businessLogo!);
+          });
+        }
+
+        const businessData = {
+          owner_user_id: user.id,
+          business_name: values.businessName,
+          business_address: values.businessAddress,
+          gst_number: values.gstNumber,
+          pan_number: values.panNumber,
+          business_phone: values.businessPhone,
+          business_email: values.businessEmail,
+          default_currency: values.defaultCurrency,
+          signature_url: finalSignatureUrl,
+          logo_path: finalLogoUrl,
+        };
+
+        console.log('Saving business data:', businessData);
+
+        let result;
+        if (businessId) {
+          result = await supabase
+            .from('businesses')
+            .update(businessData)
+            .eq('id', businessId);
+          console.log('Update result:', result);
+        } else {
+          result = await supabase
+            .from('businesses')
+            .insert(businessData)
+            .select()
+            .single();
+          console.log('Insert result:', result);
+          if (result.data) {
+            setBusinessId(result.data.id);
+          }
+        }
+
+        if (result.error) {
+          console.error('Database error:', result.error);
+          alert('Error saving: ' + result.error.message);
+          return;
+        }
+
+        if (result.data) {
+          console.log('Saved successfully:', result.data);
+        }
+
+        setBusinessLogoPreview(finalLogoUrl);
+        setShowSuccess(true);
+        setViewMode(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } catch (error) {
+        console.error('Form submission error:', error);
+        alert('Error saving information. Please try again.');
+      }
     },
   });
 
@@ -199,7 +257,10 @@ const Setting = () => {
     }),
     onSubmit: async (values) => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        redirectToAuth();
+        return;
+      }
 
       const profileData = {
         user_id: user.id,
@@ -243,6 +304,32 @@ const Setting = () => {
     await supabase.auth.signOut();
     router.push('/');
   };
+
+  const handleSaveAllChanges = async () => {
+    if (isSavingAll) return;
+    setIsSavingAll(true);
+
+    try {
+      await formik.submitForm();
+
+      const shouldAttemptProfileSave = profileFormik.dirty || hasProfile;
+      if (shouldAttemptProfileSave) {
+        await profileFormik.submitForm();
+      }
+    } finally {
+      setIsSavingAll(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="h-dvh w-full flex items-center justify-center bg-gray-100">
+        <div className="rounded-xl border border-[#2f2f33]/10 bg-white px-6 py-4 text-sm font-medium text-[#2f2f33]/70 shadow-sm">
+          Loading your saved details...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-dvh w-full flex flex-col overflow-hidden">
@@ -301,7 +388,7 @@ const Setting = () => {
                 transition={{ delay: 0.65 }}
                 className="text-gray-800 font-semibold text-base"
               >
-                Settings saved successfully!
+                ✓ Business Details Saved!
               </motion.p>
             </motion.div>
           </motion.div>
@@ -398,11 +485,12 @@ const Setting = () => {
           )}
           {!viewMode && (
             <button
-              type="submit"
-              form="businessForm"
+              type="button"
+              onClick={handleSaveAllChanges}
+              disabled={isSavingAll}
               className="px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold border border-[#3a6f77] text-[#3a6f77] rounded-lg hover:bg-[#3a6f77] hover:text-[#f5f6f7] transition-all duration-200 cursor-pointer hover:-translate-y-0.5 whitespace-nowrap"
             >
-              Save Changes
+              {isSavingAll ? 'Saving...' : 'Save Changes'}
             </button>
           )}
           {viewMode && (
