@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { useAppContext } from "@/lib/AppContext";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("This Month");
@@ -16,27 +17,35 @@ const Dashboard = () => {
   const tabs = ["This Month", "Quarter", "This Year", "All Time"];
   const filters = ["All", "Paid", "Unpaid", "Overdue"];
 
+  // ✅ OPTIMIZED: bizId from shared context — no getUser() or businesses fetch here
+  const { bizId, loading: ctxLoading } = useAppContext();
+
   useEffect(() => {
+    if (ctxLoading) return;
+    if (!bizId) { setLoading(false); return; }
+
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
+      // ✅ All 3 queries fire in parallel with pre-resolved bizId (no waterfall)
+      const [invResult, custResult, actResult] = await Promise.all([
+        supabase
+          .from('invoices')
+          .select('id, invoice_number, client_name_snapshot, total_amount, status, due_date')
+          .eq('business_id', bizId)
+          .order('created_at', { ascending: false })
+          .limit(200),
+        supabase
+          .from('customers')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', bizId),
+        supabase
+          .from('activity_logs')
+          .select('entity_type, action, message, created_at')
+          .eq('business_id', bizId)
+          .order('created_at', { ascending: false })
+          .limit(4),
+      ]);
 
-      const { data: biz } = await supabase
-        .from('businesses')
-        .select('id')
-        .eq('owner_user_id', user.id)
-        .maybeSingle();
-
-      if (!biz) { setLoading(false); return; }
-
-      const { data: invData } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('business_id', biz.id)
-        .eq('business_id', biz.id)
-        .order('created_at', { ascending: false });
-
-      const allInv = invData || [];
+      const allInv = invResult.data || [];
       const revenue = allInv.reduce((s: number, i: any) => s + Number(i.total_amount), 0);
       const paid = allInv.filter((i: any) => i.status === 'paid').length;
       const overdue = allInv.filter((i: any) => i.status === 'overdue').length;
@@ -44,52 +53,38 @@ const Dashboard = () => {
       const overdueAmount = allInv.filter((i: any) => i.status === 'overdue').reduce((s: number, i: any) => s + Number(i.total_amount), 0);
       const paidAmount = allInv.filter((i: any) => i.status === 'paid').reduce((s: number, i: any) => s + Number(i.total_amount), 0);
 
-      const { count: custCount } = await supabase
-        .from('customers')
-        .select('*', { count: 'exact', head: true })
-        .eq('business_id', biz.id);
-
       setStats({
         revenue: '₹' + revenue.toLocaleString('en-IN'),
         paid: String(paid),
         overdue: String(overdue),
-        customers: String(custCount || 0),
+        customers: String(custResult.count || 0),
         paidAmt: '₹' + paidAmount.toLocaleString('en-IN'),
         unpaidAmt: '₹' + unpaidAmount.toLocaleString('en-IN'),
         overdueAmt: '₹' + overdueAmount.toLocaleString('en-IN'),
       });
 
-      const displayInv = allInv.slice(0, 7);
-      
-      setInvoices(displayInv.map((inv: any) => ({
+      setInvoices(allInv.slice(0, 7).map((inv: any) => ({
         rawId: inv.id,
         id: '#' + inv.invoice_number,
         customer: inv.client_name_snapshot || 'Unknown',
         amount: '₹' + Number(inv.total_amount).toLocaleString('en-IN'),
         status: inv.status.charAt(0).toUpperCase() + inv.status.slice(1),
-        dueDate: new Date(inv.due_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }),
+        dueDate: inv.due_date
+          ? new Date(inv.due_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })
+          : '—',
       })));
 
-      const { data: actData } = await supabase
-        .from('activity_logs')
-        .select('*')
-        .eq('business_id', biz.id)
-        .order('created_at', { ascending: false })
-        .limit(4);
-
-      setLiveActivity((actData || []).map((a: any) => {
-        const colors: Record<string, string> = { payment: '#22c55e', reminder: '#D4B483', invoice: '#3a6f77', overdue: '#ef4444' };
-        return {
-          color: colors[a.entity_type] || '#3a6f77',
-          text: a.message || `${a.action} on ${a.entity_type}`,
-          sub: new Date(a.created_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        };
-      }));
+      const colors: Record<string, string> = { payment: '#22c55e', reminder: '#D4B483', invoice: '#3a6f77', overdue: '#ef4444' };
+      setLiveActivity((actResult.data || []).map((a: any) => ({
+        color: colors[a.entity_type] || '#3a6f77',
+        text: a.message || `${a.action} on ${a.entity_type}`,
+        sub: new Date(a.created_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      })));
 
       setLoading(false);
     };
     load();
-  }, []);
+  }, [bizId, ctxLoading]);
 
   const statusStyle = (status: string) => {
     if (status === "Paid") return { backgroundColor: "#22c55e22", color: "#22c55e" };

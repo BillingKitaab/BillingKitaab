@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
+import { useAppContext } from "@/lib/AppContext";
 
 const menu = [
   {
@@ -67,27 +68,14 @@ const MenuIcon = () => (
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [user, setUser] = useState<{ email: string; business_name: string } | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const router   = useRouter();
   const pathname = usePathname();
   const isSettingsRoute = pathname?.startsWith('/settings');
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) return;
-
-      const { data: biz } = await supabase
-        .from('businesses')
-        .select('business_name')
-        .eq('owner_user_id', authUser.id)
-        .maybeSingle();
-
-      setUser({ email: authUser.email || '', business_name: biz?.business_name || 'User' });
-    };
-    loadUser();
-  }, []);
+  // ✅ OPTIMIZED: Read from shared context — no extra auth or business fetch
+  const { userEmail, business } = useAppContext();
+  const user = business ? { email: userEmail || '', business_name: business.business_name } : null;
 
   useEffect(() => {
     const applyMobileOffset = () => {
