@@ -1,12 +1,14 @@
 import Customer from '@/component/ui/Customer'
 import Sidebar from '@/component/ui/Sidebar'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 const page = () => {
   return (
     <div className='flex'>
         <Sidebar />
-      <Customer />
+      <Suspense fallback={null}>
+        <Customer />
+      </Suspense>
     </div>
   )
 }
