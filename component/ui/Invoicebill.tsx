@@ -7,6 +7,7 @@ import * as Yup from "yup";
 import jsPDF from "jspdf";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { useAppContext } from "@/lib/AppContext";
 
 interface BusinessSettings {
   businessName: string;
@@ -61,72 +62,64 @@ const InvoiceForm = () => {
   const [qrUrl, setQrUrl] = useState("");
   const [payNotifLoading, setPayNotifLoading] = useState(false);
 
+  // ✅ OPTIMIZED: business from shared context — no getUser() or businesses fetch here
+  const { business: ctxBusiness, bizId, loading: ctxLoading } = useAppContext();
+
   useEffect(() => {
-    const loadBusiness = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    if (ctxLoading) return;
+    if (ctxBusiness) {
+      setBusiness(ctxBusiness);
+    }
 
-      const { data: biz } = await supabase
-        .from('businesses')
-        .select('*')
-        .eq('owner_user_id', user.id)
-        .maybeSingle();
+    const loadData = async () => {
+      if (!bizId) return;
 
-      if (biz) {
-        setBusiness(biz);
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
 
-        // Resolve Subscription limits
-        const { data: sub } = await supabase
+      // ✅ OPTIMIZED: 3 parallel queries, no sequential waterfall
+      const [subResult, countResult, lastInvResult] = await Promise.all([
+        supabase
           .from('subscriptions')
-          .select(`plan_id, status, plans(name, invoice_limit)`)
-          .eq('business_id', biz.id)
+          .select('plan_id, status, plans(name, invoice_limit)')
+          .eq('business_id', bizId)
           .eq('status', 'active')
-          .maybeSingle();
-
-        let pLimit: number | null = 10;
-        let pName = "Starter";
-
-        if (sub && sub.plans) {
-          const pInfo: any = Array.isArray(sub.plans) ? sub.plans[0] : sub.plans;
-          pLimit = pInfo.invoice_limit;
-          pName = pInfo.name;
-        } else {
-          const { data: freeP } = await supabase.from('plans').select('invoice_limit, name').eq('id', 'free').maybeSingle();
-          if (freeP) {
-            pLimit = freeP.invoice_limit;
-            pName = freeP.name;
-          }
-        }
-
-        setInvoiceLimit(pLimit);
-        setPlanName(pName);
-
-        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-        const { count } = await supabase
+          .maybeSingle(),
+        supabase
           .from('invoices')
-          .select('*', { count: 'exact', head: true })
-          .eq('business_id', biz.id)
-          .gte('created_at', startOfMonth);
-
-        setMonthUsage(count || 0);
-
-        // Fetch the latest invoice to auto-sequence
-        const { data: lastInvoice } = await supabase
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', bizId)
+          .gte('created_at', startOfMonth),
+        supabase
           .from('invoices')
           .select('invoice_number')
-          .eq('business_id', biz.id)
+          .eq('business_id', bizId)
           .order('created_at', { ascending: false })
           .limit(1)
-          .maybeSingle();
+          .maybeSingle(),
+      ]);
 
-        if (lastInvoice && lastInvoice.invoice_number) {
-          const match = lastInvoice.invoice_number.match(/INV-(\d+)/);
-          if (match && match[1]) {
-            const nextNum = parseInt(match[1], 10) + 1;
-            setNextInvoiceNumber(`INV-${nextNum.toString().padStart(4, '0')}`);
-          } else {
-            setNextInvoiceNumber(`INV-${Date.now().toString().slice(-4)}`);
-          }
+      let pLimit: number | null = 10;
+      let pName = "Starter";
+      if (subResult.data?.plans) {
+        const pInfo: any = Array.isArray(subResult.data.plans) ? subResult.data.plans[0] : subResult.data.plans;
+        pLimit = pInfo.invoice_limit;
+        pName = pInfo.name;
+      } else {
+        const { data: freeP } = await supabase.from('plans').select('invoice_limit, name').eq('id', 'free').maybeSingle();
+        if (freeP) { pLimit = freeP.invoice_limit; pName = freeP.name; }
+      }
+
+      setInvoiceLimit(pLimit);
+      setPlanName(pName);
+      setMonthUsage(countResult.count || 0);
+
+      const lastInvoice = lastInvResult.data;
+      if (lastInvoice?.invoice_number) {
+        const match = lastInvoice.invoice_number.match(/INV-(\d+)/);
+        if (match?.[1]) {
+          setNextInvoiceNumber(`INV-${(parseInt(match[1], 10) + 1).toString().padStart(4, '0')}`);
+        } else {
+          setNextInvoiceNumber(`INV-${Date.now().toString().slice(-4)}`);
         }
       }
 
@@ -134,8 +127,8 @@ const InvoiceForm = () => {
       if (storedLogo) setBusinessLogo(storedLogo);
     };
 
-    loadBusiness();
-  }, []);
+    loadData();
+  }, [bizId, ctxBusiness, ctxLoading]);
 
   const generatePDF = async (values: any, subtotal: number, tax: number, total: number, discountAmount: number = 0) => {
     const doc = new jsPDF();

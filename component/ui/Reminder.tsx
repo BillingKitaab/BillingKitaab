@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FaExclamationCircle, FaCalendarWeek, FaEnvelopeOpenText, FaChartLine, FaWhatsapp, FaCog, FaTimes, FaBars } from 'react-icons/fa'
 import { MdEmail } from 'react-icons/md'
 import { supabase } from '@/lib/supabaseClient'
+import { useAppContext } from '@/lib/AppContext'
 
 interface CustomerData {
   name: string
@@ -107,25 +108,27 @@ const Reminder = () => {
   const [loading, setLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
 
+  // ✅ OPTIMIZED: bizId + business from shared context — no auth or businesses fetch
+  const { bizId, business: ctxBusiness, loading: ctxLoading } = useAppContext();
+
   React.useEffect(() => {
+    if (ctxLoading) return;
+    if (!bizId) { setLoading(false); return; }
+
+    setBusiness(ctxBusiness);
+
     const fetchData = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setLoading(false); return }
-
-      const { data: biz } = await supabase
-        .from('businesses')
-        .select('id')
-        .eq('owner_user_id', user.id)
-        .maybeSingle()
-      if (!biz) { setLoading(false); return }
-
-      if (!biz) { setLoading(false); return }
-      setBusiness(biz)
-
+      // ✅ OPTIMIZED: Only fetch unpaid/overdue (paid invoices irrelevant for reminders)
+      // ✅ OPTIMIZED: Select only fields used in UI + WhatsApp sending, not customers(*)
       const { data: invs } = await supabase
         .from('invoices')
-        .select('*, customers(*)')
-        .eq('business_id', biz.id)
+        .select(`
+          id, customer_id, status, due_date, total_amount,
+          currency, pdf_path, client_name_snapshot,
+          customers(id, name, email, phone, city)
+        `)
+        .eq('business_id', bizId)
+        .in('status', ['unpaid', 'overdue'])
 
       if (!invs) { setLoading(false); return }
       setRawInvoices(invs)
@@ -184,7 +187,7 @@ const Reminder = () => {
       setLoading(false)
     }
     fetchData()
-  }, [])
+  }, [bizId, ctxLoading])
 
   const handleBulkWhatsApp = async () => {
     if (!rawInvoices.length || !business) return;

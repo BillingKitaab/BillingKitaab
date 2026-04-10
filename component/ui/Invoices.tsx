@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { useAppContext } from "@/lib/AppContext";
+
+const PAGE_SIZE = 50;
 
 const Invoices = () => {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -11,87 +14,105 @@ const Invoices = () => {
   const [search, setSearch] = useState("");
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
 
-  // New states for tracking limits
+  // Plan limits
   const [planName, setPlanName] = useState<string>("Starter");
   const [invoiceLimit, setInvoiceLimit] = useState<number | null>(10);
   const [monthUsage, setMonthUsage] = useState<number>(0);
 
+  // ✅ OPTIMIZED: bizId from shared context — no getUser() or businesses fetch here
+  const { bizId, loading: ctxLoading } = useAppContext();
+
+  // ✅ OPTIMIZED: Paginated fetch — only 50 invoices at a time
+  const fetchInvoices = useCallback(async (businessId: string, pageIndex: number, append = false) => {
+    const from = pageIndex * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
+    const { data } = await supabase
+      .from('invoices')
+      .select(`
+        id, invoice_number, client_name_snapshot, total_amount,
+        status, due_date, issue_date, pdf_path,
+        invoice_items(description)
+      `)
+      .eq('business_id', businessId)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (!data) return;
+    setHasMore(data.length === PAGE_SIZE);
+
+    const mapped = data.map((inv: any) => ({
+      rawId: inv.id,
+      id: '#' + inv.invoice_number,
+      customer: inv.client_name_snapshot || 'Unknown',
+      amount: '₹' + Number(inv.total_amount).toLocaleString('en-IN'),
+      status: inv.status.charAt(0).toUpperCase() + inv.status.slice(1),
+      dueDate: inv.due_date ? new Date(inv.due_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '—',
+      issued: inv.issue_date ? new Date(inv.issue_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '—',
+      rawAmount: Number(inv.total_amount),
+      rawStatus: inv.status,
+      pdfUrl: inv.pdf_path ? supabase.storage.from('invoices').getPublicUrl(inv.pdf_path).data.publicUrl : null,
+      items: (inv.invoice_items || []).slice(0, 2),
+    }));
+
+    setInvoices(prev => append ? [...prev, ...mapped] : mapped);
+  }, []);
+
   useEffect(() => {
+    if (ctxLoading) return;
+    if (!bizId) { setLoading(false); return; }
+
     const loadInvoices = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
 
-      const { data: biz } = await supabase
-        .from('businesses')
-        .select('id')
-        .eq('owner_user_id', user.id)
-        .maybeSingle();
-
-      if (!biz) { setLoading(false); return; }
-
-      // 1. Resolve Subscription limits & current usage
-      const { data: sub } = await supabase
-        .from('subscriptions')
-        .select(`plan_id, status, plans(name, invoice_limit)`)
-        .eq('business_id', biz.id)
-        .eq('status', 'active')
-        .maybeSingle();
+      // ✅ OPTIMIZED: subscription + month count in parallel, no auth waterfall
+      const [subResult, countResult] = await Promise.all([
+        supabase
+          .from('subscriptions')
+          .select('plan_id, status, plans(name, invoice_limit)')
+          .eq('business_id', bizId)
+          .eq('status', 'active')
+          .maybeSingle(),
+        supabase
+          .from('invoices')
+          .select('id', { count: 'exact', head: true })
+          .eq('business_id', bizId)
+          .gte('created_at', startOfMonth),
+      ]);
 
       let pLimit: number | null = 10;
       let pName = "Starter";
-
-      if (sub && sub.plans) {
-        const pInfo: any = Array.isArray(sub.plans) ? sub.plans[0] : sub.plans;
+      if (subResult.data?.plans) {
+        const pInfo: any = Array.isArray(subResult.data.plans) ? subResult.data.plans[0] : subResult.data.plans;
         pLimit = pInfo.invoice_limit;
         pName = pInfo.name;
       } else {
         const { data: freeP } = await supabase.from('plans').select('invoice_limit, name').eq('id', 'free').maybeSingle();
-        if (freeP) {
-          pLimit = freeP.invoice_limit;
-          pName = freeP.name;
-        }
+        if (freeP) { pLimit = freeP.invoice_limit; pName = freeP.name; }
       }
 
       setInvoiceLimit(pLimit);
       setPlanName(pName);
+      setMonthUsage(countResult.count || 0);
 
-      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-      const { count } = await supabase
-        .from('invoices')
-        .select('*', { count: 'exact', head: true })
-        .eq('business_id', biz.id)
-        .gte('created_at', startOfMonth);
-        
-      setMonthUsage(count || 0);
-
-      // 2. Fetch all invoices for grid
-
-      const { data } = await supabase
-        .from('invoices')
-        .select('*, customers(name), invoice_items(description, quantity)')
-        .eq('business_id', biz.id)
-        .order('created_at', { ascending: false });
-
-      const mapped = (data || []).map((inv: any) => ({
-        rawId: inv.id,
-        id: '#' + inv.invoice_number,
-        customer: inv.client_name_snapshot || inv.customers?.name || 'Unknown',
-        amount: '₹' + Number(inv.total_amount).toLocaleString('en-IN'),
-        status: inv.status.charAt(0).toUpperCase() + inv.status.slice(1),
-        dueDate: new Date(inv.due_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }),
-        issued: new Date(inv.issue_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }),
-        rawAmount: Number(inv.total_amount),
-        rawStatus: inv.status,
-        pdfUrl: inv.pdf_path ? supabase.storage.from('invoices').getPublicUrl(inv.pdf_path).data.publicUrl : null,
-        items: inv.invoice_items || [],
-      }));
-
-      setInvoices(mapped);
+      await fetchInvoices(bizId, 0, false);
       setLoading(false);
     };
     loadInvoices();
-  }, []);
+  }, [bizId, ctxLoading, fetchInvoices]);
+
+  const loadMore = async () => {
+    if (!bizId || loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    await fetchInvoices(bizId, nextPage, true);
+    setPage(nextPage);
+    setLoadingMore(false);
+  };
 
   const updateStatus = async (invoiceId: string, newStatus: string) => {
     const lowerStatus = newStatus.toLowerCase();
@@ -312,10 +333,17 @@ const dotColor = (status: string) => {
 
         {/* Scrollable Rows */}
         <div className="overflow-y-auto flex-1 px-4" style={{ scrollbarWidth: "thin", scrollbarColor: "#3a3a3d transparent" }}>
-          {filtered.length === 0 ? (
-            <p className="text-sm text-[#f5f6f7]/40 text-center py-10">No invoices found</p>
-          ) : (
-            filtered.map((inv) => (
+        {loading ? (
+          <div className="flex flex-col gap-3 px-4 py-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-10 bg-[#f5f6f7]/5 rounded-lg animate-pulse" />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <p className="text-sm text-[#f5f6f7]/40 text-center py-10">No invoices found</p>
+        ) : (
+          <>
+            {filtered.map((inv) => (
               <div
                 key={inv.id}
                 className="grid grid-cols-[1fr_1.5fr_2fr_1.2fr_1fr_1fr_40px_40px] gap-2 py-3 items-center hover:bg-[#f5f6f7]/5 rounded-lg transition-colors duration-100"
@@ -387,8 +415,21 @@ const dotColor = (status: string) => {
                   </button>
                 </div>
               </div>
-            ))
-          )}
+            ))}
+            {/* Load More */}
+            {hasMore && (
+              <div className="flex justify-center py-4">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="px-6 py-2 text-sm font-semibold rounded-lg bg-[#3a6f77] text-white hover:bg-[#2c5359] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loadingMore ? 'Loading...' : `Load More`}
+                </button>
+              </div>
+            )}
+          </>
+        )}
         </div>
         </div>
       </div>
