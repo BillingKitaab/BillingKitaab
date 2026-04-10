@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Trash2 } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
 const FiSearch = () => (
@@ -11,18 +12,81 @@ const FiSearch = () => (
   </svg>
 );
 
+const SELECTED_CUSTOMER_STORAGE_KEY = 'billingkitaab:selectedCustomerId';
+const APP_TIME_ZONE = 'Asia/Kolkata';
+
 const Customer = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [activeTab, setActiveTab] = useState('all');
   const [sortOption, setSortOption] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [editingCustomerId, setEditingCustomerId] = useState<string | null>(null);
+  const [currentDate, setCurrentDate] = useState<Date | null>(null);
   const [newCustomer, setNewCustomer] = useState({ name: '', email: '', phone: '', city: '', gst_number: '', status: 'good' });
   const [customerStats, setCustomerStats] = useState({ total: 0, thisMonth: 0, revenue: 0, good: 0, overdue: 0, pending: 0 });
+
+  const selectedCustomer = useMemo(
+    () => customers.find((c) => c.id === selectedCustomerId) || null,
+    [customers, selectedCustomerId]
+  );
+
+  const getDateKeyInAppTimeZone = (date: Date) =>
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: APP_TIME_ZONE,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(date);
+
+  const dateKeyToUtcDayTimestamp = (dateKey: string) => {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    return Date.UTC(year, month - 1, day);
+  };
+
+  const getDateOffsetInDays = (targetDate: Date, baseDate = new Date()) => {
+    const targetKey = getDateKeyInAppTimeZone(targetDate);
+    const baseKey = getDateKeyInAppTimeZone(baseDate);
+    return Math.round((dateKeyToUtcDayTimestamp(targetKey) - dateKeyToUtcDayTimestamp(baseKey)) / 86400000);
+  };
+
+  const formatRelativeDate = (value: string | Date | null | undefined) => {
+    if (!value) return 'N/A';
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return 'N/A';
+
+    const offset = getDateOffsetInDays(date, new Date());
+    const prettyDate = date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: APP_TIME_ZONE,
+    });
+
+    if (offset === 0) return `Today, ${prettyDate}`;
+    if (offset === 1) return `Today, ${prettyDate}`;
+    return prettyDate;
+  };
+
+  const updateCustomerInQuery = (customerId: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (customerId) {
+      params.set('customerId', customerId);
+    } else {
+      params.delete('customerId');
+    }
+
+    const queryString = params.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
+  };
 
   useEffect(() => {
     const loadCustomers = async () => {
@@ -69,6 +133,49 @@ const Customer = () => {
     loadCustomers();
   }, []);
 
+  useEffect(() => {
+    setCurrentDate(new Date());
+
+    const timer = window.setInterval(() => {
+      setCurrentDate(new Date());
+    }, 60000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const customerIdFromUrl = searchParams.get('customerId');
+    const customerIdFromStorage = typeof window !== 'undefined'
+      ? window.sessionStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY)
+      : null;
+    const resolvedCustomerId = customerIdFromUrl || customerIdFromStorage;
+
+    if (!resolvedCustomerId) {
+      setSelectedCustomerId(null);
+      return;
+    }
+
+    if (customers.length > 0) {
+      const exists = customers.some((c) => c.id === resolvedCustomerId);
+      if (!exists) {
+        setSelectedCustomerId(null);
+        if (typeof window !== 'undefined') {
+          window.sessionStorage.removeItem(SELECTED_CUSTOMER_STORAGE_KEY);
+        }
+        updateCustomerInQuery(null);
+        return;
+      }
+    }
+
+    setSelectedCustomerId(resolvedCustomerId);
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, resolvedCustomerId);
+    }
+    if (!customerIdFromUrl) {
+      updateCustomerInQuery(resolvedCustomerId);
+    }
+  }, [searchParams, customers]);
+
   const handleSaveCustomer = async () => {
     if (!businessId || !newCustomer.name || !newCustomer.email) return;
 
@@ -90,7 +197,7 @@ const Customer = () => {
       if (error) { alert('Error: ' + error.message); return; }
       if (data) {
         setCustomers(prev => prev.map(c => c.id === editingCustomerId ? data : c));
-        if (selectedCustomer?.id === editingCustomerId) setSelectedCustomer(data);
+        if (selectedCustomer?.id === editingCustomerId) setSelectedCustomerId(data.id);
       }
     } else {
       const { data, error } = await supabase
@@ -145,7 +252,13 @@ const Customer = () => {
     }
 
     setCustomers(prev => prev.filter(c => c.id !== customer.id));
-    setSelectedCustomer(null);
+    if (selectedCustomerId === customer.id) {
+      setSelectedCustomerId(null);
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.removeItem(SELECTED_CUSTOMER_STORAGE_KEY);
+      }
+      updateCustomerInQuery(null);
+    }
   };
 
   const statusClass = (status: string) => {
@@ -237,6 +350,7 @@ const Customer = () => {
           { label: 'Email', value: cust.email },
           { label: 'Phone', value: cust.phone },
           { label: 'City', value: cust.city },
+          { label: 'Joined', value: formatRelativeDate(cust.created_at) },
           { label: 'Revenue', value: cust.revenue },
           { label: 'Invoices', value: `${cust.invoices} invoices` },
         ].map((row, i) => (
@@ -288,7 +402,7 @@ const Customer = () => {
           <div className="w-full flex items-center justify-between px-4 py-3 shrink-0 flex-wrap gap-2 bg-[#f5f6f7]">
             <div>
               <h1 className="text-xl sm:text-2xl text-[#2f2f33] font-bold font-serif m-0">Customers</h1>
-              <p suppressHydrationWarning className="font-medium text-xs text-[#2f2f33]/80 mt-0.5 m-0">{`Today ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`}</p>
+              <p suppressHydrationWarning className="font-medium text-xs text-[#2f2f33]/80 mt-0.5 m-0">{currentDate ? formatRelativeDate(currentDate) : ''}</p>
             </div>
             <div className="flex gap-2 items-center flex-wrap">
               <div className="flex items-center bg-[#2f2f33] rounded-md px-3 py-1.5 gap-2 w-full sm:w-60">
@@ -380,8 +494,19 @@ const Customer = () => {
                 filtered.map((cust) => (
                   <div
                     key={cust.id}
-                    onClick={() => setSelectedCustomer(selectedCustomer?.id === cust.id ? null : cust)}
-                    className={`border-b border-[#f5f6f7]/[0.07] transition-colors duration-150 cursor-pointer ${selectedCustomer?.id === cust.id ? 'bg-[#f5f6f7]/10' : 'hover:bg-[#f5f6f7]/5'}`}
+                    onClick={() => {
+                      const nextSelectedId = selectedCustomerId === cust.id ? null : cust.id;
+                      setSelectedCustomerId(nextSelectedId);
+                      if (typeof window !== 'undefined') {
+                        if (nextSelectedId) {
+                          window.sessionStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, nextSelectedId);
+                        } else {
+                          window.sessionStorage.removeItem(SELECTED_CUSTOMER_STORAGE_KEY);
+                        }
+                      }
+                      updateCustomerInQuery(nextSelectedId);
+                    }}
+                    className={`border-b border-[#f5f6f7]/[0.07] transition-colors duration-150 cursor-pointer ${selectedCustomerId === cust.id ? 'bg-[#f5f6f7]/10' : 'hover:bg-[#f5f6f7]/5'}`}
                   >
                     <div className="hidden sm:grid sm:grid-cols-[1.2fr_1.5fr_1.3fr_0.7fr_0.8fr_0.7fr_40px] gap-x-3 px-5 py-3.5 items-center">
                       <span className="text-sm text-[#f5f6f7] font-medium truncate">{cust.name}</span>
@@ -449,13 +574,40 @@ const Customer = () => {
         {selectedCustomer && (
           <>
             <div className="hidden sm:flex shrink-0 border-l border-[#2f2f33]/10 flex-col overflow-hidden" style={{ width: "300px", maxWidth: "340px" }}>
-              <CustomerProfile cust={selectedCustomer} onClose={() => setSelectedCustomer(null)} />
+              <CustomerProfile
+                cust={selectedCustomer}
+                onClose={() => {
+                  setSelectedCustomerId(null);
+                  if (typeof window !== 'undefined') {
+                    window.sessionStorage.removeItem(SELECTED_CUSTOMER_STORAGE_KEY);
+                  }
+                  updateCustomerInQuery(null);
+                }}
+              />
             </div>
 
             <div className="sm:hidden fixed inset-0 z-50 flex flex-col justify-end">
-              <div className="absolute inset-0 bg-black/40" onClick={() => setSelectedCustomer(null)} />
+              <div
+                className="absolute inset-0 bg-black/40"
+                onClick={() => {
+                  setSelectedCustomerId(null);
+                  if (typeof window !== 'undefined') {
+                    window.sessionStorage.removeItem(SELECTED_CUSTOMER_STORAGE_KEY);
+                  }
+                  updateCustomerInQuery(null);
+                }}
+              />
               <div className="relative bg-[#f5f6f7] rounded-t-2xl max-h-[75vh] flex flex-col overflow-hidden">
-                <CustomerProfile cust={selectedCustomer} onClose={() => setSelectedCustomer(null)} />
+                <CustomerProfile
+                  cust={selectedCustomer}
+                  onClose={() => {
+                    setSelectedCustomerId(null);
+                    if (typeof window !== 'undefined') {
+                      window.sessionStorage.removeItem(SELECTED_CUSTOMER_STORAGE_KEY);
+                    }
+                    updateCustomerInQuery(null);
+                  }}
+                />
               </div>
             </div>
           </>

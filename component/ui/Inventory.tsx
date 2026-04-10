@@ -41,7 +41,7 @@ const Inventory = () => {
   }
 
   return (
-    <div className='min-h-screen lg:h-[100dvh] lg:overflow-hidden w-full bg-gradient-to-br from-[#f5f6f7] via-[#D4B483]/15 to-[#3a6f77]/20 px-4 py-8 sm:px-6 sm:py-10 md:px-8 lg:py-4'>
+    <div className='min-h-screen lg:h-dvh lg:overflow-hidden w-full bg-linear-to-br from-[#f5f6f7] via-[#D4B483]/15 to-[#3a6f77]/20 px-2 py-6 sm:px-6 sm:py-8 md:px-8 lg:py-4'>
       <AnimatePresence>
         {showAddedPopup && (
           <motion.div
@@ -50,21 +50,21 @@ const Inventory = () => {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 80, scale: 0.98 }}
             transition={{ duration: 0.28, ease: 'easeOut' }}
-            className='fixed right-4 top-5 z-50 w-[90vw] max-w-sm rounded-xl border border-[#D4B483]/50 bg-[#f5f6f7] px-4 py-3 shadow-[0_10px_28px_rgba(47,47,51,0.18)]'
+            className='fixed left-1/2 top-3 z-50 w-[92vw] max-w-sm -translate-x-1/2 rounded-xl border border-[#D4B483]/50 bg-[#f5f6f7] px-4 py-3 shadow-[0_10px_28px_rgba(47,47,51,0.18)] sm:left-auto sm:right-4 sm:top-5 sm:translate-x-0'
           >
             <p className='text-sm font-bold text-[#2f2f33]'>Product added successfully</p>
-            <p className='mt-1 text-xs text-[#2f2f33]/70'>{lastAddedQuantity} unit(s) added to your stock list.</p>
+            <p className='mt-1 text-xs font-medium text-[#2f2f33]/70'>{lastAddedQuantity} unit(s) added to your stock list.</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className='mx-auto mt-2 sm:mt-3 lg:mt-0 w-full max-w-3xl'>
+      <div className='mx-auto mt-1 sm:mt-2 lg:mt-0 w-full max-w-3xl'>
         <div className='text-center'>
           <h1 className='text-3xl sm:text-4xl lg:text-3xl font-serif font-bold text-[#2f2f33]'>Add New Item</h1>
-          <p className='mt-2 lg:mt-1 text-sm sm:text-base lg:text-sm text-[#2f2f33]/70 font-medium'>Register a new product to your inventory in seconds.</p>
+          <p className='mt-2 lg:mt-1 text-sm sm:text-base lg:text-sm text-[#2f2f33]/70 font-semibold sm:font-medium'>Register a new product to your inventory in seconds.</p>
         </div>
 
-        <div className='mt-6 sm:mt-8 lg:mt-4 rounded-2xl border border-[#2f2f33]/10 bg-[#f5f6f7]/95 shadow-[0_12px_35px_rgba(47,47,51,0.10)] p-4 sm:p-6 md:p-7 lg:p-5'>
+        <div className='mt-5 sm:mt-6 lg:mt-4 rounded-2xl border border-[#2f2f33]/10 bg-[#f5f6f7]/95 shadow-[0_12px_35px_rgba(47,47,51,0.10)] p-4 sm:p-5 md:p-7 lg:p-5'>
           <form onSubmit={handleAddProduct} className='space-y-4 sm:space-y-5 lg:space-y-3'>
             <div>
               <label className='mb-2 lg:mb-1 block text-sm font-semibold text-[#2f2f33]'>Product Name</label>
@@ -76,7 +76,7 @@ const Inventory = () => {
               />
             </div>
 
-            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+            <div className='grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2'>
               <div>
                 <label className='mb-2 lg:mb-1 block text-sm font-semibold text-[#2f2f33]'>SKU Code</label>
                 <input
@@ -99,7 +99,7 @@ const Inventory = () => {
               </div>
             </div>
 
-            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+            <div className='grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2'>
               <div>
                 <label className='mb-2 lg:mb-1 block text-sm font-semibold text-[#2f2f33]'>Stock Quantity</label>
                 <input
@@ -142,7 +142,7 @@ const Inventory = () => {
 
             <div className='rounded-lg border border-[#D4B483]/40 bg-[#D4B483]/10 p-3 sm:p-4 lg:p-2.5'>
               <p className='text-xs sm:text-sm font-semibold text-[#2f2f33]'>Profit Preview</p>
-              <div className='mt-2 lg:mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2'>
+              <div className='mt-2 lg:mt-1 grid grid-cols-1 gap-2 md:grid-cols-2'>
                 <p className='text-xs sm:text-sm text-[#2f2f33]/80'>
                   Per Unit Profit:{' '}
                   <span className={`font-bold ${perUnitProfit >= 0 ? 'text-[#3a6f77]' : 'text-red-600'}`}>
@@ -180,7 +180,7 @@ const Inventory = () => {
           </form>
         </div>
 
-        <p className='mx-auto mt-6 lg:mt-3 max-w-xl text-center text-xs sm:text-sm lg:text-xs text-[#2f2f33]/40'>
+        <p className='mx-auto mt-6 lg:mt-3 max-w-xl text-center text-xs sm:text-sm lg:text-xs font-medium sm:font-normal text-[#2f2f33]/40'>
           By adding this item, it will be immediately available in your inventory records for billing and stock tracking.
         </p>
       </div>
