@@ -1,8 +1,12 @@
+"use client";
 import React from 'react'
+import { useLanguage } from '@/lib/LanguageContext'
+import { langText } from '@/lib/langText'
 import Link from 'next/link'
 import Image from 'next/image'
 
 const Footer = () => {
+  const { language } = useLanguage();
   return (
     <div className='w-full bg-[#2f2f33] px-6 sm:px-10 py-12'>
 
@@ -25,24 +29,24 @@ const Footer = () => {
 
           {/* Product */}
           <div className='flex flex-col gap-3'>
-            <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>Product</p>
-            <Link href='/landing#services' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Services</Link>
-            <Link href='/pricing' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Pricing</Link>
+            <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>{langText[language].product}</p>
+            <Link href='/features' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>{langText[language].features}</Link>
+            <Link href='/pricing' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>{langText[language].pricingPage}</Link>
           </div>
 
           {/* Company */}
           <div className='flex flex-col gap-3'>
-            <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>Company</p>
-            <Link href='/landing#about' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>About Us</Link>
-            <Link href='/contact' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Contact</Link>
+            <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>{langText[language].company}</p>
+            <Link href='/briefaboutus' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>{langText[language].aboutUs}</Link>
+            <Link href='/contact' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>{langText[language].contactPage}</Link>
           </div>
 
           {/* Support */}
           <div className='flex flex-col gap-3'>
-            <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>Support</p>
-            <Link href='/help' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Help Centre</Link>
-            <Link href='/terms' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Terms and Conditions</Link>
-            <Link href='/privacy' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>Policy</Link>
+            <p className='text-[10px] tracking-widest text-[#D4B483]/70 uppercase'>{langText[language].support}</p>
+            <Link href='/help' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>{langText[language].help}</Link>
+            <Link href='/terms' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>{langText[language].terms}</Link>
+            <Link href='/privacy' className='text-sm text-[#f5f6f7]/60 hover:text-[#f5f6f7] transition-colors'>{langText[language].policy}</Link>
           </div>
 
         </div>
@@ -58,9 +62,9 @@ const Footer = () => {
 
         {/* Bottom Links */}
         <div className='flex flex-wrap justify-center gap-6'>
-          <Link href='/privacy' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>Privacy Policy</Link>
-          <Link href='/terms' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>Terms of Use</Link>
-          <Link href='/gst' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>GST Policy</Link>
+          <Link href='/privacy' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>{langText[language].privacy}</Link>
+          <Link href='/terms' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>{langText[language].terms}</Link>
+          <Link href='/gst' className='text-xs text-[#f5f6f7]/30 hover:text-[#f5f6f7] transition-colors'>{langText[language].gst}</Link>
         </div>
 
       </div>

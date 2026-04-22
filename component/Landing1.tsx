@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from '@/lib/LanguageContext';
+import { langText } from '@/lib/langText';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -14,6 +16,7 @@ const DARK = "#1A1A2E";
 export default function SmartBillingHero() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { language } = useLanguage();
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -120,31 +123,36 @@ export default function SmartBillingHero() {
         <div className="hero-eyebrow fade-0 inline-flex items-center gap-2 bg-white border rounded-lg px-3 py-1.5 mb-5 md:mb-7 text-xs font-medium"
           style={{ borderColor: "rgba(201,169,110,0.3)", color: TEAL, letterSpacing: "0.5px" }}>
           <span className="rounded-full inline-block" style={{ width: 6, height: 6, background: GOLD }} />
-          <span className="whitespace-nowrap">BillingKitaab · Built for Modern India</span>
+          <span className="whitespace-nowrap">BillingKitaab · {language === 'Hindi' ? 'आधुनिक भारत के लिए बनाया गया' : language === 'English' ? 'Built for Modern India' : 'Built for Modern India'}</span>
         </div>
 
         <p className="hero-tagline fade-1 dm-sans text-base md:text-lg font-medium mb-3" style={{ color: TEAL, letterSpacing: "1px" }}>
-          India’s Smart {" "}
-          <span style={{ color: GOLD, textDecoration: "underline", textDecorationColor: "rgba(201,169,110,0.4)" }}>Billing Platform</span>{" "}
+          {language === 'Hindi' ? 'भारत का स्मार्ट ' : language === 'English' ? 'India’s Smart ' : 'India’s Smart '}
+          <span style={{ color: GOLD, textDecoration: "underline", textDecorationColor: "rgba(201,169,110,0.4)" }}>{language === 'Hindi' ? 'बिलिंग प्लेटफॉर्म' : language === 'English' ? 'Billing Platform' : 'Billing Platform'}</span>
         </p>
 
         <h1 className="hero-title fade-2 playfair font-black mb-3 md:mb-1.5" style={{ fontSize: "clamp(32px,6vw,72px)", lineHeight: 1.1, color: GOLD }}>
-          From invoice to income simplified.
+          {language === 'Hindi' ? 'इनवॉइस से इनकम तक सब आसान।' : language === 'English' ? 'From invoice to income simplified.' : 'From invoice to income simplified.'}
         </h1>
 
         <h2 className="hero-subtitle fade-3 playfair font-bold mb-5 md:mb-7" style={{ fontSize: "clamp(26px,5vw,62px)", lineHeight: 1.15, color: DARK }}>
-          Manage your <span style={{ color: TEAL }}>billing</span> the smart way.
+          {language === 'Hindi' ? 'अपने ' : language === 'English' ? 'Manage your ' : 'Manage your '}
+          <span style={{ color: TEAL }}>{language === 'Hindi' ? 'बिलिंग' : language === 'English' ? 'billing' : 'billing'}</span>
+          {language === 'Hindi' ? ' स्मार्ट तरीके से।' : language === 'English' ? ' the smart way.' : ' the smart way.'}
         </h2>
 
-        <p className="hero-copy fade-4 text-sm md:text-base max-w-lg mb-8 md:mb-10 leading-relaxed" style={{ color: "#888" }}>
-          Create polished invoices, Automate client reminders,<br className="hidden md:block" />
-          Collect payments faster — from one intelligent, beautifully designed dashboard.
+        <p className="hero-copy fade-4 text-sm md:text-base max-w-lg mb-8 md:mb-10 leading-relaxed text-extrabold" style={{ color: "#888" }}>
+          {language === 'Hindi'
+            ? 'पॉलिश्ड इनवॉइस बनाएं, क्लाइंट रिमाइंडर ऑटोमेट करें, पेमेंट जल्दी पाएं — एक इंटेलिजेंट, खूबसूरत डैशबोर्ड से।'
+            : language === 'English'
+            ? 'Create polished invoices, Automate client reminders,\nCollect payments faster — from one intelligent, beautifully designed dashboard.'
+            : 'Create polished invoices, Automate client reminders,\nCollect payments faster — from one intelligent, beautifully designed dashboard.'}
         </p>
 
         <div className="hero-actions fade-5 flex flex-col sm:flex-row gap-3 md:gap-4 items-center w-full max-w-md">
     <button
       onClick={handleClick}
-      className="cta-primary-btn w-full sm:w-[240px] h-[52px] md:h-[56px] px-6 md:px-9 rounded-xl text-sm font-semibold text-white cursor-pointer border-none"
+      className="cta-primary-btn w-full sm:w-60 h-13 md:h-14 px-6 md:px-9 rounded-xl text-sm font-semibold text-white cursor-pointer border-none"
       style={{
         background: `linear-gradient(135deg, ${GOLD}, #B8914A)`,
         boxShadow: "0 8px 30px rgba(201,169,110,0.4)",
@@ -152,48 +160,21 @@ export default function SmartBillingHero() {
         letterSpacing: "0.2px",
       }}
     >
-      Start Free Now
+      {langText[language].startFree}
     </button>
 
-          <button className="cta-secondary-btn flex items-center justify-center gap-2.5 w-full sm:w-[240px] h-[52px] md:h-[56px] px-6 md:px-8 border rounded-xl text-sm font-semibold cursor-pointer bg-white transition-all duration-200"
+          <button className="cta-secondary-btn flex items-center justify-center gap-2.5 w-full sm:w-60 h-13 md:h-14 px-6 md:px-8 border rounded-xl text-sm font-semibold cursor-pointer bg-white transition-all duration-200"
             style={{ borderColor: "rgba(201,169,110,0.35)", color: DARK, fontFamily: "'DM Sans', sans-serif" }}>
             <span className="rounded-full flex items-center justify-center" style={{ width: 28, height: 28, background: TEAL }}>
               <svg width="10" height="12" viewBox="0 0 10 12" fill="white"><polygon points="0,0 10,6 0,12"/></svg>
             </span>
-            Demo Video
+            {language === 'Hindi' ? 'डेमो वीडियो' : language === 'English' ? 'Demo Video' : 'Demo Video'}
           </button>
         </div>
       </section>
 
       {/* ── TRUST STRIP ── */}
-      <div className="trust-strip relative z-10 flex justify-center gap-6 md:gap-10 px-4 md:px-16 py-5 bg-white border-t border-b"
-        style={{ borderColor: "rgba(201,169,110,0.15)" }}>
-        {[
-          {
-            color: GOLD, label: "50,000+", sub: "Indian businesses",
-            icon: <svg viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="2" width="14" height="14"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          },
-          {
-            color: TEAL, label: "₹200 Cr+", sub: "invoiced monthly",
-            icon: <svg viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" width="14" height="14"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          },
-          {
-            color: GOLD, label: "GST", sub: "compliant",
-            icon: <svg viewBox="0 0 24 24" fill="none" stroke={GOLD} strokeWidth="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
-          },
-          {
-            color: TEAL, label: "Bank-grade", sub: "security",
-            icon: <svg viewBox="0 0 24 24" fill="none" stroke={TEAL} strokeWidth="2" width="14" height="14"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          },
-        ].map((t) => (
-          <div key={t.label} className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
-            <div className="flex items-center justify-center rounded-lg" style={{ width: 28, height: 28, background: "rgba(201,169,110,0.1)" }}>
-              {t.icon}
-            </div>
-            <span><span className="font-bold" style={{ color: DARK }}>{t.label}</span> {t.sub}</span>
-          </div>
-        ))}
-      </div>
+ 
     </div>
   );
 }

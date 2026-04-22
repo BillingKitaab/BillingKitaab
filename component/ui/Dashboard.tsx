@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
+import { useLanguage } from '@/lib/LanguageContext';
+import { langText } from '@/lib/langText';
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
@@ -14,8 +16,17 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ revenue: '₹0', paid: '0', overdue: '0', customers: '0', paidAmt: '₹0', unpaidAmt: '₹0', overdueAmt: '₹0' });
   const [loading, setLoading] = useState(true);
 
-  const tabs = ["This Month", "Quarter", "This Year", "All Time"];
-  const filters = ["All", "Paid", "Unpaid", "Overdue"];
+  const { language } = useLanguage();
+  const tabs = language === 'Hindi'
+    ? ["इस माह", "तिमाही", "इस वर्ष", "सभी समय"]
+    : language === 'English'
+    ? ["This Month", "Quarter", "This Year", "All Time"]
+    : ["This Month", "Quarter", "This Year", "All Time"];
+  const filters = language === 'Hindi'
+    ? ["सभी", "भुगतान", "अवैतनिक", "अतिदेय"]
+    : language === 'English'
+    ? ["All", "Paid", "Unpaid", "Overdue"]
+    : ["All", "Paid", "Unpaid", "Overdue"];
 
   // ✅ OPTIMIZED: bizId from shared context — no getUser() or businesses fetch here
   const { bizId, loading: ctxLoading } = useAppContext();
@@ -126,7 +137,7 @@ const Dashboard = () => {
       <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-8 py-3 sm:py-4 shrink-0">
         <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl text-[#2f2f33] font-bold font-serif">
-            Dashboard
+            {langText[language].dashboard}
           </h1>
           <p suppressHydrationWarning className="font-medium text-xs sm:text-sm text-[#2f2f33]/80 font-sans mt-0.5">
             {`Today ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`}
@@ -135,12 +146,12 @@ const Dashboard = () => {
 
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           <button className="px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold bg-[#D4B483] text-[#2f2f33] rounded-lg hover:bg-[#c9a86c] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5">
-            Export
+            {language === 'Hindi' ? 'निर्यात करें' : language === 'English' ? 'Export' : 'Export'}
           </button>
           <Link
           href='/bill'
            className="px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold border border-[#3a6f77] text-[#3a6f77] rounded-lg hover:bg-[#3a6f77] hover:text-[#f5f6f7] transition-all duration-200 cursor-pointer hover:-translate-y-0.5">
-            New Invoice
+            {language === 'Hindi' ? 'नया इनवॉइस' : language === 'English' ? 'New Invoice' : 'New Invoice'}
           </Link>
         </div>
       </div>
@@ -149,11 +160,11 @@ const Dashboard = () => {
       {Number(stats.overdue) > 0 && (
       <div className="w-full  flex items-center gap-4 px-4 sm:px-8 py-2 shrink-0">
         <p className="text-xs sm:text-sm font-medium font-sans flex items-center gap-2 truncate">
-          <span className="text-red-500 shrink-0">🔔 {stats.overdue} invoice{Number(stats.overdue) > 1 ? 's' : ''} overdue</span>
-          <span className="text-[#2f2f33]/70 hidden sm:inline">— Auto-reminders have been sent to your customers.</span>
+          <span className="text-red-500 shrink-0">🔔 {stats.overdue} {language === 'Hindi' ? 'इनवॉइस' : language === 'English' ? 'invoice' : 'invoice'}{Number(stats.overdue) > 1 ? (language === 'Hindi' ? '' : 's') : ''} {language === 'Hindi' ? 'अतिदेय' : language === 'English' ? 'overdue' : 'overdue'}</span>
+          <span className="text-[#2f2f33]/70 hidden sm:inline">— {language === 'Hindi' ? 'ऑटो-रिमाइंडर आपके ग्राहकों को भेज दिए गए हैं।' : language === 'English' ? 'Auto-reminders have been sent to your customers.' : 'Auto-reminders have been sent to your customers.'}</span>
         </p>
         <Link href="/invoices" className="text-xs sm:text-sm text-[#3a6f77] font-medium flex items-center gap-1 cursor-pointer hover:text-[#3a6f77]/80 shrink-0 ml-auto">
-          View overdue
+          {language === 'Hindi' ? 'अतिदेय देखें' : language === 'English' ? 'View overdue' : 'View overdue'}
           <ChevronRightIcon className="w-3 h-3 sm:w-4 sm:h-4 mt-0.5" />
         </Link>
       </div>

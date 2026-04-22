@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/LanguageContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
@@ -14,6 +15,50 @@ const Navbar = () => {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { language, setLanguage } = useLanguage();
+
+  // Language text map
+  const langText: Record<string, {
+    home: string;
+    feature: string;
+    pricing: string;
+    about: string;
+    contact: string;
+    dashboard: string;
+    login: string;
+    register: string;
+  }> = {
+    Hinglish: {
+      home: "Home",
+      feature: "Feature",
+      pricing: "Pricing",
+      about: "About",
+      contact: "Contact Us",
+      dashboard: "Dashboard",
+      login: "Login",
+      register: "Register",
+    },
+    Hindi: {
+      home: "होम",
+      feature: "फ़ीचर",
+      pricing: "मूल्य निर्धारण",
+      about: "हमारे बारे में",
+      contact: "संपर्क करें",
+      dashboard: "डैशबोर्ड",
+      login: "लॉगिन",
+      register: "रजिस्टर",
+    },
+    English: {
+      home: "Home",
+      feature: "Feature",
+      pricing: "Pricing",
+      about: "About",
+      contact: "Contact Us",
+      dashboard: "Dashboard",
+      login: "Login",
+      register: "Register",
+    },
+  };
 
   useEffect(() => {
     // Ensure fade class is removed when arriving on a page
@@ -34,13 +79,19 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-17 w-full bg-gradient-to-b from-[#f5f6f7] via-[#f5f6f7] to-[#2f2f33]/5 flex items-center justify-between px-4 sm:px-8 z-50">
+    <div className="fixed top-0 left-0 right-0 h-17 w-full bg-linear-to-b from-[#f5f6f7] via-[#f5f6f7] to-[#2f2f33]/5 flex items-center justify-between px-4 sm:px-8 z-50">
       {/* Left side logo */}
-      <img
-        src="/logo/smart.svg"
-        alt="Logo"
-        className="h-10 sm:h-12 w-auto object-contain animate-[slideInLeft_0.6s_ease-out_both]"
-      />
+      <div className="flex items-center space-x-4">
+        <img
+          src="/logo/smart.svg"
+          alt="Logo"
+          className="h-10 sm:h-12 w-auto object-contain animate-[slideInLeft_0.6s_ease-out_both]"
+        />
+        <div>
+          <h1 className="text-[#D4B483] font-playfair text-xl sm:text-3xl font-bold">Billing</h1>
+          <h2 className="text-[#3a6f77] font-poppins text-sm sm:text-xl font-semibold">Kitaab</h2>
+        </div>
+      </div>
 
       {/* Center nav links */}
       <div className="hidden sm:flex flex-1 items-center justify-center gap-6 sm:gap-10">
@@ -54,7 +105,7 @@ const Navbar = () => {
           after:bg-[#D4B483] after:scale-x-0 after:origin-left after:transition-transform after:duration-300 
           hover:after:scale-x-100"
         >
-          Home
+          {langText[language].home}
         </p>
 
         <p
@@ -67,7 +118,7 @@ const Navbar = () => {
           after:bg-[#D4B483] after:scale-x-0 after:origin-left after:transition-transform after:duration-300 
           hover:after:scale-x-100"
         >
-          Feature
+          {langText[language].feature}
         </p>
 
         <p
@@ -80,7 +131,7 @@ const Navbar = () => {
           after:bg-[#D4B483] after:scale-x-0 after:origin-left after:transition-transform after:duration-300 
           hover:after:scale-x-100"
         >
-          Pricing
+          {langText[language].pricing}
         </p>
 
         <p
@@ -93,7 +144,7 @@ const Navbar = () => {
           after:bg-[#D4B483] after:scale-x-0 after:origin-left after:transition-transform after:duration-300 
           hover:after:scale-x-100"
         >
-          About us
+          {langText[language].about}
         </p>
 
         <p
@@ -106,12 +157,29 @@ const Navbar = () => {
           after:bg-[#D4B483] after:scale-x-0 after:origin-left after:transition-transform after:duration-300 
           hover:after:scale-x-100"
         >
-          Contact Us
+          {langText[language].contact}
         </p>
       </div>
 
-      {/* Right side buttons */}
+      {/* Language Switcher — hidden on mobile, shown in mobile menu instead */}
       <div className="hidden sm:flex items-center gap-3 sm:gap-4 cursor-pointer">
+        <div className="flex items-center gap-2 mr-2">
+          {(['Hinglish', 'Hindi', 'English'] as const).map((lang) => (
+            <button
+              key={lang}
+              onClick={() => setLanguage(lang)}
+              className={`px-2 py-1 rounded text-xs font-semibold border transition
+                ${language === lang
+                  ? 'bg-[#D4B483] text-[#2f2f33] border-[#3a6f77]'
+                  : 'bg-[#f5f6f7] text-[#3a6f77] border-[#3a6f77] hover:bg-[#D4B483] hover:text-[#2f2f33]'}
+              `}
+              style={{ minWidth: 70 }}
+            >
+              {lang}
+            </button>
+          ))}
+        </div>
+        {/* Right side buttons */}
         {isLoggedIn ? (
           <Link
             href="/dashboard"
@@ -121,7 +189,7 @@ const Navbar = () => {
             }}
             className="px-3 sm:px-4 py-1 text-sm font-bold border border-[#3a6f77] bg-[#3a6f77] text-[#f5f6f7] rounded hover:bg-[#2c5359] transition cursor-pointer"
           >
-            Dashboard
+            {langText[language].dashboard}
           </Link>
         ) : (
           <>
@@ -133,7 +201,7 @@ const Navbar = () => {
               }}
               className="px-3 sm:px-4 py-1 text-sm font-bold border border-[#3a6f77] text-[#2f2f33] rounded hover:bg-[#D4B483] hover:text-[#f5f6f7] transition cursor-pointer"
             >
-              Login
+              {langText[language].login}
             </Link>
             <Link
               href="/register"
@@ -143,7 +211,7 @@ const Navbar = () => {
               }}
               className="px-3 sm:px-4 py-1 text-sm font-bold border border-[#3a6f77] text-[#2f2f33] rounded hover:bg-[#3a6f77] hover:text-[#f5f6f7] transition cursor-pointer"
             >
-              Register
+              {langText[language].register}
             </Link>
           </>
         )}
@@ -186,8 +254,25 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="sm:hidden absolute top-full right-4 mt-2 w-48 bg-[#f5f6f7] rounded-lg shadow-lg z-50">
+        <div className="sm:hidden absolute top-full right-4 mt-2 w-56 bg-[#f5f6f7] rounded-lg shadow-lg z-50">
           <div className="flex flex-col p-2">
+            {/* Language Switcher Mobile */}
+            <div className="flex items-center gap-2 mb-2">
+              {(['Hinglish', 'Hindi', 'English'] as const).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setLanguage(lang)}
+                  className={`px-2 py-1 rounded text-xs font-semibold border transition w-full
+                    ${language === lang
+                      ? 'bg-[#D4B483] text-[#2f2f33] border-[#3a6f77]'
+                      : 'bg-[#f5f6f7] text-[#3a6f77] border-[#3a6f77] hover:bg-[#D4B483] hover:text-[#2f2f33]'}
+                  `}
+                  style={{ minWidth: 70 }}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
             {isLoggedIn ? (
               <button
                 onClick={(e) => {
@@ -197,7 +282,7 @@ const Navbar = () => {
                 }}
                 className="text-left px-3 py-2 rounded font-bold text-[#3a6f77] hover:bg-[#e9eceb]"
               >
-                Dashboard
+                {langText[language].dashboard}
               </button>
             ) : (
               <>
@@ -209,7 +294,7 @@ const Navbar = () => {
                   }}
                   className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
                 >
-                  Login
+                  {langText[language].login}
                 </button>
                 <button
                   onClick={(e) => {
@@ -219,7 +304,7 @@ const Navbar = () => {
                   }}
                   className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
                 >
-                  Register
+                  {langText[language].register}
                 </button>
               </>
             )}
@@ -232,7 +317,7 @@ const Navbar = () => {
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >
-              Home
+              {langText[language].home}
             </button>
             <button
               onClick={(e) => {
@@ -242,7 +327,7 @@ const Navbar = () => {
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >
-              Feature
+              {langText[language].feature}
             </button>
             <button
               onClick={(e) => {
@@ -252,7 +337,7 @@ const Navbar = () => {
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >
-              Pricing
+              {langText[language].pricing}
             </button>
             <button
               onClick={(e) => {
@@ -262,7 +347,7 @@ const Navbar = () => {
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >
-              About us
+              {langText[language].about}
             </button>
             <button
               onClick={(e) => {
@@ -272,7 +357,7 @@ const Navbar = () => {
               }}
               className="text-left px-3 py-2 rounded hover:bg-[#e9eceb]"
             >
-              Contact Us
+              {langText[language].contact}
             </button>
           </div>
         </div>
