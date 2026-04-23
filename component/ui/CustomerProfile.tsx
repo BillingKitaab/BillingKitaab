@@ -2,27 +2,31 @@
 
 import React from "react";
 
+import { useLanguage } from '@/lib/LanguageContext';
+import { langText } from '@/lib/langText';
+
 const CustomerProfile = () => {
+  const { language } = useLanguage();
   const customer = {
     name: "Meera Kapoor",
-    since: "Aug 2024",
+    since: language === 'Hindi' ? 'अगस्त 2024' : language === 'Hinglish' ? 'August 2024' : 'Aug 2024',
     email: "meera@kapoordesigns.com",
     phone: "+91 99887 76655",
-    city: "Delhi, India",
+    city: language === 'Hindi' ? 'दिल्ली, भारत' : language === 'Hinglish' ? 'Dilli, Bharat' : 'Delhi, India',
     gst: "07AAIPM4321A1Z9",
     totalBilled: "₹38,500",
-    status: "Pending",
+    status: language === 'Hindi' ? 'लंबित' : language === 'Hinglish' ? 'Pending' : 'Pending',
   };
 
   const invoices = [
-    { id: "#INV-0042", date: "Feb 10, 2026", amount: "₹12,500", status: "Overdue" },
-    { id: "#INV-0034", date: "Jan 5, 2026", amount: "₹14,000", status: "Paid" },
-    { id: "#INV-0027", date: "Nov 20, 2025", amount: "₹12,000", status: "Paid" },
+    { id: "#INV-0042", date: language === 'Hindi' ? '10 फरवरी, 2026' : language === 'Hinglish' ? '10 Feb, 2026' : 'Feb 10, 2026', amount: "₹12,500", status: language === 'Hindi' ? 'अतिदेय' : language === 'Hinglish' ? 'Overdue' : 'Overdue' },
+    { id: "#INV-0034", date: language === 'Hindi' ? '5 जनवरी, 2026' : language === 'Hinglish' ? '5 Jan, 2026' : 'Jan 5, 2026', amount: "₹14,000", status: language === 'Hindi' ? 'भुगतान' : language === 'Hinglish' ? 'Paid' : 'Paid' },
+    { id: "#INV-0027", date: language === 'Hindi' ? '20 नवम्बर, 2025' : language === 'Hinglish' ? '20 Nov, 2025' : 'Nov 20, 2025', amount: "₹12,000", status: language === 'Hindi' ? 'भुगतान' : language === 'Hinglish' ? 'Paid' : 'Paid' },
   ];
 
   const statusClass = (status: string) => {
-    if (status === "Paid") return "bg-[#3a6f77] text-[#f5f6f7]";
-    if (status === "Overdue") return "bg-red-500 text-white";
+    if (status === (language === 'Hindi' ? 'भुगतान' : 'Paid')) return "bg-[#3a6f77] text-[#f5f6f7]";
+    if (status === (language === 'Hindi' ? 'अतिदेय' : 'Overdue')) return "bg-red-500 text-white";
     return "bg-[#D4B483] text-[#2f2f33]";
   };
 
@@ -36,7 +40,7 @@ const CustomerProfile = () => {
         </h1>
         <div className="flex gap-2">
           <button className="px-3 py-1.5 text-xs sm:text-sm font-bold bg-[#D4B483] text-[#2f2f33] rounded-lg hover:bg-[#c9a86c] transition-all">
-            New Invoice
+            {langText[language].newInvoice || (language === 'Hindi' ? 'नया इनवॉइस' : language === 'Hinglish' ? 'Naya Invoice' : 'New Invoice')}
           </button>
           <button className="px-3 py-1.5 text-xs sm:text-sm font-bold border border-[#3a6f77] text-[#3a6f77] rounded-lg hover:bg-[#3a6f77] hover:text-[#f5f6f7] transition-all">
             Edit

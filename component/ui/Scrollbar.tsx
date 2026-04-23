@@ -5,7 +5,7 @@ import React from 'react'
 const items = [
   "Smart Invoicing",
   "Auto Reminders",
-  "WhatsApp & Gmail",
+  "WhatsApp ",
   "Live Dashboard",
   "PDF Reports",
   "Secure & Private",

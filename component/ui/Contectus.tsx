@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
 
+import { useLanguage } from '@/lib/LanguageContext';
+import { langText } from '@/lib/langText';
+
 const Contectus = () => {
+  const { language } = useLanguage();
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -19,20 +23,20 @@ const Contectus = () => {
         <div className="w-full md:w-1/2 h-full relative">
           <img
             src="/logo/contactus.png"
-            alt="Contact"
+            alt={language === 'Hindi' ? 'संपर्क' : language === 'Hinglish' ? 'Sampark' : 'Contact'}
             className="w-full h-full object-cover"
           />
         </div>
         <div className="w-full md:w-1/2 h-full flex items-center justify-center">
           <div className="w-full h-full px-6 py-8 sm:px-8 sm:py-10">
             <div className="h-full w-full rounded-2xl border border-[#D4B483]/40 bg-[#f5f6f7] p-5 sm:p-6 flex flex-col justify-center gap-3">
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#2f2f33]">Send us a Message</h2>
-              <p className="text-sm text-[#3a6f77] mb-1">Fill out the form below, and we&apos;ll get back to you soon.</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#2f2f33]">{language === 'Hindi' ? 'हमें संदेश भेजें' : language === 'Hinglish' ? 'Humein Sandesh Bheje' : 'Send us a Message'}</h2>
+              <p className="text-sm text-[#3a6f77] mb-1">{language === 'Hindi' ? 'नीचे फॉर्म भरें, हम जल्द ही आपसे संपर्क करेंगे।' : language === 'Hinglish' ? 'Neeche form bharein, hum jaldi sampark karenge.' : 'Fill out the form below, and we\'ll get back to you soon.'}</p>
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                 <input
                   type="text"
-                  placeholder="Full Name"
+                  placeholder={language === 'Hindi' ? 'पूरा नाम' : language === 'Hinglish' ? 'Pura Naam' : 'Full Name'}
                   required
                   className="w-full rounded-md border border-[#D4B483]/40 bg-[#f5f6f7] px-3 py-2.5 text-sm text-[#2f2f33] outline-none"
                 />

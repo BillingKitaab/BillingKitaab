@@ -1,8 +1,50 @@
 "use client";
 import { motion } from "framer-motion";
 import React from "react";
+import { useLanguage } from '@/lib/LanguageContext';
+import { langText } from '@/lib/langText';
 
 const boxes = [
+  {
+    title: "Inventory",
+    desc: "Manage and track all your products in one place with real-time updates.",
+    bg: "#3a6f77",
+    text: "#f5f6f7",
+    accent: "#D4B483",
+    icon: (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <rect x="4" y="7" width="16" height="13" rx="2" />
+        <path d="M4 7V5a2 2 0 012-2h12a2 2 0 012 2v2" />
+        <path d="M9 10h6" />
+      </svg>
+    ),
+  },
+  {
+    title: "Best Selling Recommendation",
+    desc: "Get suggestions for top-selling products to maximize your profit.",
+    bg: "#D4B483",
+    text: "#2f2f33",
+    accent: "#3a6f77",
+    icon: (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path d="M12 17l-5 3 1.9-5.7L4 10.5l6-.5L12 4l2 6 6 .5-4.9 3.8L17 20z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Stock Alert",
+    desc: "Receive alerts when inventory is low to avoid stockouts and lost sales.",
+    bg: "#2f2f33",
+    text: "#f5f6f7",
+    accent: "#D4B483",
+    icon: (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 8v4" />
+        <circle cx="12" cy="16" r="1" />
+      </svg>
+    ),
+  },
   {
     title: "Smart Invoicing",
     desc: "Create GST-ready, branded invoices in seconds. Add line items, taxes, notes — send with a single click.",
@@ -17,7 +59,7 @@ const boxes = [
   },
   {
     title: "Auto Reminders",
-    desc: "Set it once. InvoiceLux automatically follows up with overdue clients every morning via email and WhatsApp.",
+    desc: "Set it once. Invoice automatically follows up with overdue clients every morning via email and WhatsApp.",
     bg: "#f5f6f7",
     text: "#2f2f33",
     accent: "#3a6f77",
@@ -28,8 +70,8 @@ const boxes = [
     ),
   },
   {
-    title: "WhatsApp & Gmail",
-    desc: "Send invoices as premium PDF attachments directly to your client's WhatsApp or Gmail inbox instantly.",
+    title: "WhatsApp ",
+    desc: "Send invoices as premium PDF attachments directly to your client's WhatsApp  inbox instantly.",
     bg: "#3a6f77",
     text: "#f5f6f7",
     accent: "#D4B483",
@@ -78,6 +120,7 @@ const boxes = [
 ];
 
 const Services = () => {
+  const { language } = useLanguage();
   return (
     <div id="services" className="min-h-screen w-full bg-linear-to-b from-[#f5f6f7] via-[#f5f6f7] to-[#2f2f33]/20">
       <style>{`
@@ -109,9 +152,7 @@ const Services = () => {
           className="services-heading-text text-3xl sm:text-4xl md:text-5xl text-[#2f2f33] font-bold leading-tight max-w-4xl"
           style={{ fontFamily: "'Georgia', serif" }}
         >
-          Everything your{" "}
-          <span className="text-[#3a6f77] bg-[#D4B483] px-1"> billing </span>{" "}
-          should already do
+          {langText[language].servicesHeading}
         </h1>
       </motion.div>
 

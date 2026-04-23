@@ -14,9 +14,6 @@ const Page = () => {
       <Landing1 />
       <Scrollbar />
       <Services />
-      <div id="pricing">
-        <Planbilling />
-      </div>
       <About />
       <Footer />
     </div>

@@ -7,28 +7,42 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { useAppContext } from "@/lib/AppContext";
+import { useLanguage } from '@/lib/LanguageContext';
+import { langText } from '@/lib/langText';
 
 const menu = [
   {
-    group: "MAIN",
+    group: {
+      Hinglish: "MAIN",
+      Hindi: "मुख्य",
+      English: "MAIN"
+    },
     items: [
-      { id: "dashboard", label: "Dashboard", href: "/dashboard", badge: null },
-      { id: "invoices",  label: "Invoices",  href: "/invoice",  badge: null },
-      { id: "customers", label: "Customers", href: "/customer", badge: null },
-      { id: "reminders", label: "Reminders", href: "/reminder", badge: null },
-      { id: "inventory", label: "Inventory", href: "/inventory", badge: null },
+      { id: "dashboard", label: { Hinglish: langText.Hinglish.dashboard, Hindi: langText.Hindi.dashboard, English: langText.English.dashboard }, href: "/dashboard", badge: null },
+      { id: "invoices",  label: { Hinglish: "Invoices", Hindi: "चालान", English: "Invoices" }, href: "/invoice", badge: null },
+      { id: "customers", label: { Hinglish: "Customers", Hindi: "ग्राहक", English: "Customers" }, href: "/customer", badge: null },
+      { id: "reminders", label: { Hinglish: "Reminders", Hindi: "रिमाइंडर", English: "Reminders" }, href: "/reminder", badge: null },
+      { id: "inventory", label: { Hinglish: "Inventory", Hindi: "इन्वेंटरी", English: "Inventory" }, href: "/inventory", badge: null },
     ],
   },
   {
-    group: "REPORTS",
+    group: {
+      Hinglish: "REPORTS",
+      Hindi: "रिपोर्ट्स",
+      English: "REPORTS"
+    },
     items: [
-      { id: "pdf", label: "PDF Reports", href: "/pdfreport", badge: null },
+      { id: "pdf", label: { Hinglish: "PDF Reports", Hindi: "पीडीएफ रिपोर्ट", English: "PDF Reports" }, href: "/pdfreport", badge: null },
     ],
   },
   {
-    group: "SYSTEM",
+    group: {
+      Hinglish: "SYSTEM",
+      Hindi: "सिस्टम",
+      English: "SYSTEM"
+    },
     items: [
-      { id: "settings", label: "Settings", href: "/settings", badge: null },
+      { id: "settings", label: { Hinglish: "Settings", Hindi: "सेटिंग्स", English: "Settings" }, href: "/settings", badge: null },
     ],
   },
 ];
@@ -108,6 +122,7 @@ export default function Sidebar() {
     await supabase.auth.signOut();
     router.push("/signup");
   };
+  const { language } = useLanguage();
   const SidebarContent = () => (
     <div className="flex flex-col min-h-full w-full md:h-screen md:w-60 px-3 py-5 bg-[#2f2f33]">
       {/* Logout Confirmation Modal */}
@@ -181,9 +196,9 @@ export default function Sidebar() {
 
       <nav className="flex-1 flex flex-col gap-5">
         {menu.map(({ group, items }) => (
-          <div key={group}>
+          <div key={group[language]}>
             <p className="text-xs tracking-widest px-2 mb-1 text-[rgba(245,246,247,0.45)]">
-              {group}
+              {group[language]}
             </p>
 
             {items.map(({ id, label, href, badge }) => {
@@ -200,7 +215,7 @@ export default function Sidebar() {
                       : "bg-transparent text-[#f5f6f7] font-normal"
                   }`}
                 >
-                  {label}
+                  {label[language]}
 
                   {badge && (
                     <span className="text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold bg-[#3a6f77] text-[#f5f6f7]">

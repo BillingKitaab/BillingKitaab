@@ -15,7 +15,11 @@ const FiSearch = () => (
 const SELECTED_CUSTOMER_STORAGE_KEY = 'billingkitaab:selectedCustomerId';
 const APP_TIME_ZONE = 'Asia/Kolkata';
 
+import { useLanguage } from '@/lib/LanguageContext';
+import { langText } from '@/lib/langText';
+
 const Customer = () => {
+  const { language } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -37,6 +41,7 @@ const Customer = () => {
     () => customers.find((c) => c.id === selectedCustomerId) || null,
     [customers, selectedCustomerId]
   );
+  // ...existing code...
 
   const getDateKeyInAppTimeZone = (date: Date) =>
     new Intl.DateTimeFormat('en-CA', {
