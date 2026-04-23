@@ -161,25 +161,8 @@ const Navbar = () => {
         </p>
       </div>
 
-      {/* Language Switcher — hidden on mobile, shown in mobile menu instead */}
+      {/* Right side buttons */}
       <div className="hidden sm:flex items-center gap-3 sm:gap-4 cursor-pointer">
-        <div className="flex items-center gap-2 mr-2">
-          {(['Hinglish', 'Hindi', 'English'] as const).map((lang) => (
-            <button
-              key={lang}
-              onClick={() => setLanguage(lang)}
-              className={`px-2 py-1 rounded text-xs font-semibold border transition
-                ${language === lang
-                  ? 'bg-[#D4B483] text-[#2f2f33] border-[#3a6f77]'
-                  : 'bg-[#f5f6f7] text-[#3a6f77] border-[#3a6f77] hover:bg-[#D4B483] hover:text-[#2f2f33]'}
-              `}
-              style={{ minWidth: 70 }}
-            >
-              {lang}
-            </button>
-          ))}
-        </div>
-        {/* Right side buttons */}
         {isLoggedIn ? (
           <Link
             href="/dashboard"
@@ -256,23 +239,6 @@ const Navbar = () => {
       {mobileOpen && (
         <div className="sm:hidden absolute top-full right-4 mt-2 w-56 bg-[#f5f6f7] rounded-lg shadow-lg z-50">
           <div className="flex flex-col p-2">
-            {/* Language Switcher Mobile */}
-            <div className="flex items-center gap-2 mb-2">
-              {(['Hinglish', 'Hindi', 'English'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => setLanguage(lang)}
-                  className={`px-2 py-1 rounded text-xs font-semibold border transition w-full
-                    ${language === lang
-                      ? 'bg-[#D4B483] text-[#2f2f33] border-[#3a6f77]'
-                      : 'bg-[#f5f6f7] text-[#3a6f77] border-[#3a6f77] hover:bg-[#D4B483] hover:text-[#2f2f33]'}
-                  `}
-                  style={{ minWidth: 70 }}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
             {isLoggedIn ? (
               <button
                 onClick={(e) => {

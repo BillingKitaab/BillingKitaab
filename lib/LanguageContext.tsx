@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext } from "react";
 
 export type Language = "Hinglish" | "Hindi" | "English";
 
@@ -11,7 +11,8 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<Language>("Hinglish");
+  const language: Language = "English";
+  const setLanguage = (_lang: Language) => {};
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>
       {children}
@@ -24,3 +25,4 @@ export function useLanguage() {
   if (!ctx) throw new Error("useLanguage must be used within LanguageProvider");
   return ctx;
 }
+

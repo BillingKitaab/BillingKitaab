@@ -25,6 +25,10 @@ export const langText = {
     powerfulFeatures: "Powerful Features for Modern Businesses",
     featuresDesc: "Everything you need to manage billing, inventory, and business growth from one smart dashboard.",
     servicesHeading: "Everything your billing should already do",
+    thankYouTitle: "Thank You",
+    thankYouMsg: "We have received your message. We will contact you shortly.",
+    backToContact: "Back to Contact",
+    newInvoice: "New Invoice",
     ...{},
   },
   Hindi: {
@@ -53,6 +57,10 @@ export const langText = {
     powerfulFeatures: "आधुनिक व्यवसायों के लिए शक्तिशाली विशेषताएँ",
     featuresDesc: "एक स्मार्ट डैशबोर्ड से बिलिंग, इन्वेंट्री और व्यापार वृद्धि प्रबंधित करने के लिए सब कुछ।",
     servicesHeading: "आपकी बिलिंग को ये सब पहले से करना चाहिए",
+    thankYouTitle: "धन्यवाद",
+    thankYouMsg: "हमें आपका संदेश मिल गया है। हम आपसे शीघ्र संपर्क करेंगे।",
+    backToContact: "संपर्क पर वापस जाएं",
+    newInvoice: "नया इनवॉइस",
     ...{},
   },
   English: {
@@ -81,6 +89,10 @@ export const langText = {
     powerfulFeatures: "Powerful Features for Modern Businesses",
     featuresDesc: "Everything you need to manage billing, inventory, and business growth from one smart dashboard.",
     servicesHeading: "Everything your billing should already do",
+    thankYouTitle: "Thank You",
+    thankYouMsg: "We have received your message. We will contact you shortly.",
+    backToContact: "Back to Contact",
+    newInvoice: "New Invoice",
     ...{},
   },
 } as const;
